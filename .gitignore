@@ -1,0 +1,8 @@
+# Build files
+Debug
+Release
+ipch
+CS580HW6.VC.db
+.vs/*
+CS580HW6.dsw
+CS580HW6.VCC.VC.openddb
