@@ -136,6 +136,7 @@
     <ClCompile Include="CS580HW.cpp" />
     <ClCompile Include="CS580HWDoc.cpp" />
     <ClCompile Include="CS580HWView.cpp" />
+    <ClCompile Include="FormFactor.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="mat.cpp" />
     <ClCompile Include="rend.cpp" />
@@ -149,6 +150,7 @@
     </ClCompile>
     <ClCompile Include="tex_fun.cpp" />
     <ClCompile Include="TranslateDlg.cpp" />
+    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CS580HW.rc" />
@@ -159,6 +161,7 @@
     <ClInclude Include="CS580HW.h" />
     <ClInclude Include="CS580HWDoc.h" />
     <ClInclude Include="CS580HWView.h" />
+    <ClInclude Include="FormFactor.h" />
     <ClInclude Include="gz.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="mat.h" />
@@ -169,6 +172,7 @@
     <ClInclude Include="ScaleDlg.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TranslateDlg.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="vec.h" />
   </ItemGroup>
   <ItemGroup>
