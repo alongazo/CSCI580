@@ -6,6 +6,8 @@
 
 class Point {
 public:
+	float x, y, z;
+
 	Point() {};
 	Point(float x, float y, float z) : x(x), y(y), z(z) {};
 
@@ -60,8 +62,6 @@ public:
 	{
 		return sqrt(pow(x - p.x, 2) + pow(y - p.y, 2) + pow(z - p.z, 2));
 	}
-
-	float x, y, z;
 };
 
 class Vertex : public Point {
@@ -84,9 +84,9 @@ public:
 class Triangle {
 public:
 	Vertex A, B, C;
-	int Index;
+	int Id;
 
-	Triangle(Vertex& a, Vertex& b, Vertex& c, int index) : Index(index)
+	Triangle(Vertex& a, Vertex& b, Vertex& c, int index) : Id(index)
 	{
 		OrderVertices(a, b, c);
 	}
@@ -99,7 +99,7 @@ public:
 
 	bool operator==(const Triangle& t) const
 	{
-		return A == t.A && B == t.B && C == t.C &&  Index == t.Index;
+		return A == t.A && B == t.B && C == t.C &&  Id == t.Id;
 	}
 	bool operator!=(const Triangle& t) const
 	{

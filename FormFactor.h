@@ -8,7 +8,7 @@
 #include <map>
 
 #ifndef PI
-#define PI 3.141592653589
+#define PI (float) 3.141592653589
 #endif
 
 class FormFactorCalculator {
@@ -20,8 +20,8 @@ public:
 	void CalculateForms();
 	float LookUp(int indexA, int indexB);
 
-	std::multimap<int, int> VisMap = std::multimap<int, int>();
-	std::map<int, std::map<int, float>> FormMap = std::map<int, std::map<int, float>>(); //map of indices A to map of indices B to formfactors
+	std::multimap<int, Triangle*> VisMap = std::multimap<int, Triangle*>();
+	std::map<int, std::map<int, float>> FormMap = std::map<int, std::map<int, float>>(); //map of id A to map of id B to formfactors
 
 private:
 	bool IsVisible(Triangle from, Triangle to); //0 if ray from to to is occluded 1 otherwise

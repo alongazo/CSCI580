@@ -5,7 +5,8 @@ bool FormFactorCalculator::IntersectPlane(const Point &planeNorm, const Point &p
 {
 	// assuming vectors are all normalized
 	float denom = planeNorm.Dot(lineDir);
-	if (denom > 1e-6) {
+	if (denom > 1e-6) //Allow for rounding error
+	{
 		Point p0l0 = planePoint - lineStart;
 		t = p0l0.Dot(planeNorm) / denom;
 		return (t >= 0);
@@ -24,22 +25,27 @@ void FormFactorCalculator::CalculateVis()
 			{
 				if (IsVisible(to, from))//Found going other direction
 				{
-					VisMap.insert(std::pair<int, int>(from.Index, to.Index));
+					VisMap.insert(std::pair<int, Triangle*>(from.Id, &to));
 				}
 				else
 				{
 					bool visible = true;
-					for (Triangle test : triList)
+					float t = 0;
+					Point l, p_intercep;
+					for (Triangle test : triList)//possible occluders
 					{
-						if (test == to || test == from)
+						if (test == to || test == from)//ignore if end point
 							continue;
 
-						float t = 0;
-						Point l = to.Center() - from.Center();
-						l = l / l.Norm();
+						t = 0;
+						l = to.Center() - from.Center();
+						l = l / l.Norm();//ray direction normalized
 
-						if (IntersectPlane(to.FaceNormal(), to.Center(), from.Center(), l, t)) {
-							Point p_intercep = from.Center() + l * t;
+						//Does ray intersect with the plane that the test triangle is in
+						if (IntersectPlane(test.FaceNormal(), test.Center(), from.Center(), l, t)) {
+							p_intercep = from.Center() + l * t;
+
+							//Is the intersection point inside the area covered by the triangle
 							if (test.InArea(p_intercep))
 							{
 								visible = false;
@@ -47,9 +53,10 @@ void FormFactorCalculator::CalculateVis()
 							}
 						}
 					}
+
 					if (visible)
 					{
-						VisMap.insert(std::pair<int, int>(from.Index, to.Index));
+						VisMap.insert(std::pair<int, Triangle*>(from.Id, &to));
 					}
 				}					
 			}
@@ -59,10 +66,10 @@ void FormFactorCalculator::CalculateVis()
 
 bool FormFactorCalculator::IsVisible(Triangle from, Triangle to) {
 
-	auto ret = VisMap.equal_range(from.Index);
+	auto ret = VisMap.equal_range(from.Id);
 	for (auto iter = ret.first; iter != ret.second; ++iter)
 	{
-		if (iter->second == to.Index)
+		if (iter->second->Id == to.Id)
 			return true;
 	}
 	return false;
@@ -88,20 +95,25 @@ void FormFactorCalculator::CalculateForms()
 	*/
 
 	FormMap.clear();
+	Point ray;
+	float radius, f;
 	for (Triangle t : triList)
 	{
-		for (Triangle v : triList)
-		{
-			if (IsVisible(t, v))
-			{
-				Point ray = v.Center() - t.Center();//Ray from t to v
-				float r = t.Center().Distance(v.Center());
-				float f = (cos(t.FaceNormal().Angle(ray)) * cos(v.FaceNormal().Angle(ray)));
-				f /= (float)PI*pow(r, 2);
-				f *= v.Area();
+		FormMap.insert(std::pair<int, std::map<int, float>>(t.Id, std::map<int, float>()));
 
-				FormMap.at(t.Index).insert(std::pair<int, float>(v.Index, f));
-			}
+		//For each triangle visible from t
+		Triangle* v;
+		auto ret = VisMap.equal_range(t.Id);
+		for (auto iter = ret.first; iter != ret.second; ++iter)
+		{
+			//Calculate form factor
+			v = iter->second;
+			ray = v->Center() - t.Center();//Ray from t to v
+			radius = t.Center().Distance(v->Center());
+			f = (cos(t.FaceNormal().Angle(ray)) * cos(v->FaceNormal().Angle(ray)));
+			f *= v->Area() / (PI*pow(radius, 2));
+
+			FormMap[t.Id].insert(std::pair<int, float>(v->Id, f));
 		}
 	}
 }
@@ -110,10 +122,10 @@ float FormFactorCalculator::LookUp(int indexA, int indexB)
 {
 	try
 	{
-		return indexA == indexB ? 0 : FormMap.at(indexA).at(indexB);
+		return FormMap.at(indexA).at(indexB);
 	}
 	catch(const std::out_of_range&)
 	{
-		return -1;
+		return 0;
 	}
 }
