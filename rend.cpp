@@ -133,6 +133,7 @@ int GzRender::GzScaleMat(GzCoord scale, GzMatrix mat)
 
 int GzRender::GzDefault()
 {
+	//128	112	96
 	GzPixel px = { 128 << 4, 112 << 4, 96 << 4, 4095, INT32_MAX };
 	px.red = (GzIntensity)(px.red * weight);
 	px.green = (GzIntensity)(px.green * weight);
