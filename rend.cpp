@@ -167,7 +167,7 @@ int GzRender::GzPutCamera(GzCamera camera)
 		0, 1, 0, 0,
 		0, 0, dRecip, 0,
 		0, 0, dRecip, 1).value,
-		sizeof(float) * 4 * 4);
+		sizeof(GzMatrix));
 
 	// compute Xiw and copy to camera
 	Vec3 L(m_camera.lookat);
@@ -186,7 +186,7 @@ int GzRender::GzPutCamera(GzCamera camera)
 		y.x, y.y, y.z, -dot(y, C),
 		z.x, z.y, z.z, -dot(z, C),
 		0, 0, 0, 1).value,
-		sizeof(float) * 4 * 4);
+		sizeof(GzMatrix));
 
 	return GZ_SUCCESS;
 }
@@ -587,10 +587,10 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs)
 	Vec4 planeParamV = interpPlane(Vec3(a.x, a.y, aUV.y), Vec3(b.x, b.y, bUV.y), Vec3(c.x, c.y, cUV.y));
 	
 	// compute triangle bounding box
-	int minX = (int)floormin3(a.x, b.x, c.x);
-	int minY = (int)floormin3(a.y, b.y, c.y);
-	int maxX = (int)ceilmax3(a.x, b.x, c.x);
-	int maxY = (int)ceilmax3(a.y, b.y, c.y);
+	int minX = (int)max(floormin3(a.x, b.x, c.x), 0);
+	int minY = (int)max(floormin3(a.y, b.y, c.y), 0);
+	int maxX = (int)min(ceilmax3(a.x, b.x, c.x), xres);
+	int maxY = (int)min(ceilmax3(a.y, b.y, c.y), yres);
 
 	int x, y;
 	GzIntensity nil;
