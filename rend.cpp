@@ -25,7 +25,6 @@ GzRender::GzRender(int xRes, int yRes)
 		0, -yres / 2.0f, 0, yres / 2.0f,
 		0, 0, MAXINT, 0,
 		0, 0, 0, 1);
-	GzPushMatrix(Xsp.value, false);
 
 	// setup default camera
 	GzCamera camera;
@@ -150,6 +149,7 @@ int GzRender::GzDefault()
 
 int GzRender::GzBeginRender()
 {
+	GzPushMatrix(Xsp.value, false);
 	GzPushMatrix(m_camera.Xpi, false);
 	GzPushMatrix(m_camera.Xiw);
 
@@ -225,6 +225,12 @@ int GzRender::GzPopMatrix()
 	}
 
 	--matlevel;
+	return GZ_SUCCESS;
+}
+
+int GzRender::GzClearMatrixStack()
+{
+	matlevel = -1;
 	return GZ_SUCCESS;
 }
 
