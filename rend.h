@@ -76,6 +76,7 @@ public:
 	int GzPutCamera(GzCamera camera);
 	int GzPushMatrix(GzMatrix matrix, bool normPush = true);
 	int GzPopMatrix();
+	int GzClearMatrixStack();
 	int GzPushLight(const GzLight& light);
 	int GzPopLight();
 
