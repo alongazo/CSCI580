@@ -66,14 +66,16 @@ public:
 
 class Vertex : public Point {
 public:
-	Point normal;
+	Point Normal;
 	float u, v;
 
 	Vertex() {};
+	Vertex(float x, float y, float z, Point normal, float u, float v): Normal(normal), u(u), v(v), Point(x,y,z)
+	{}
 
 	bool operator==(const Vertex& p) const
 	{
-		return normal == p.normal && u == p.u && v == p.v && Point::operator==(p);
+		return Normal == p.Normal && u == p.u && v == p.v && Point::operator==(p);
 	}
 	bool operator!=(const Vertex& p) const
 	{
@@ -86,6 +88,7 @@ public:
 	Vertex A, B, C;
 	int Id;
 
+	Triangle() {};
 	Triangle(Vertex& a, Vertex& b, Vertex& c, int index) : Id(index)
 	{
 		OrderVertices(a, b, c);

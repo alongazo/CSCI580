@@ -68,7 +68,7 @@ void Triangle::OrderRemaining(Vertex& found, Vertex& b, Vertex& c)
 
 Point Triangle::FaceNormal() const
 {
-	Point avg = (A.normal + B.normal + C.normal) / 3.0;
+	Point avg = (A.Normal + B.Normal + C.Normal) / 3.0;
 	return avg / avg.Norm();
 }
 

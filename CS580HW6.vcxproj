@@ -137,8 +137,10 @@
     <ClCompile Include="CS580HWDoc.cpp" />
     <ClCompile Include="CS580HWView.cpp" />
     <ClCompile Include="FormFactor.cpp" />
+    <ClCompile Include="HemiCube.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="mat.cpp" />
+    <ClCompile Include="minRend.cpp" />
     <ClCompile Include="rend.cpp" />
     <ClCompile Include="RotateDlg.cpp" />
     <ClCompile Include="ScaleDlg.cpp" />
@@ -163,9 +165,11 @@
     <ClInclude Include="CS580HWView.h" />
     <ClInclude Include="FormFactor.h" />
     <ClInclude Include="gz.h" />
+    <ClInclude Include="HemiCube.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="mathext.h" />
+    <ClInclude Include="minRend.h" />
     <ClInclude Include="rend.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotateDlg.h" />

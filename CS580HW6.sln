@@ -7,12 +7,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CS580HW6", "CS580HW6.vcxpro
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Debug|x64.ActiveCfg = Debug|Win32
 		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Debug|x86.ActiveCfg = Debug|Win32
 		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Debug|x86.Build.0 = Debug|Win32
+		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Release|x64.ActiveCfg = Release|Win32
 		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Release|x86.ActiveCfg = Release|Win32
 		{0F7B2B7F-15BD-4725-B492-A9F06D1578C0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
