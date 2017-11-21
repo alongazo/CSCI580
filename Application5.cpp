@@ -9,6 +9,8 @@
 #include "stdafx.h"
 #include "CS580HW.h"
 #include "Application5.h"
+#include "Triangle.h"
+#include "FormFactor.h"
 #include "Gz.h"
 #include "rend.h"
 
@@ -77,8 +79,8 @@ int Application5::Initialize()
 	/* 
 	 * initialize the display and the renderer 
 	 */ 
-	m_nWidth = 1024;//256;		// frame buffer and display width
-	m_nHeight = 1024;//256;    // frame buffer and display height
+	m_nWidth = 256;		// frame buffer and display width
+	m_nHeight = 256;    // frame buffer and display height
 
 	m_pRender = new GzRender(m_nWidth, m_nHeight);
 	m_pRender->GzDefault();
@@ -128,21 +130,21 @@ GzMatrix	rotateY =
 
 	status |= m_pRender->GzPutCamera(camera); 
 #endif 
-	/*camera.position[X] = -1;
-	camera.position[Y] = 0.0;
-	camera.position[Z] = 0.0;
+	camera.position[X] = -1;
+	camera.position[Y] = 0.01;
+	camera.position[Z] = 0.01;
 
-	camera.lookat[X] = 0.0;
-	camera.lookat[Y] = 0.0;
-	camera.lookat[Z] = 0.0;
+	camera.lookat[X] = 0.01;
+	camera.lookat[Y] = 0.01;
+	camera.lookat[Z] = 0.01;
 
-	camera.worldup[X] = 0.0;
+	camera.worldup[X] = 0.01;
 	camera.worldup[Y] = 1.0;
-	camera.worldup[Z] = 0.0;
+	camera.worldup[Z] = 0.01;
 
 	camera.FOV = 63.7;              /* degrees *              /* degrees */
-
-	//status |= m_pRender->GzPutCamera(camera);
+	status |= m_pRender->GzClearMatrixStack();
+	status |= m_pRender->GzPutCamera(camera);
 	/* Start Renderer */
 	status |= m_pRender->GzBeginRender();
 
@@ -207,9 +209,9 @@ GzMatrix	rotateY =
         status |= m_pRender->GzPutAttribute(6, nameListShader, valueListShader);
 
 
-	status |= m_pRender->GzPushMatrix(scale);  
-	status |= m_pRender->GzPushMatrix(rotateY); 
-	status |= m_pRender->GzPushMatrix(rotateX); 
+	//status |= m_pRender->GzPushMatrix(scale);  
+	//status |= m_pRender->GzPushMatrix(rotateY); 
+	//status |= m_pRender->GzPushMatrix(rotateX); 
 
 	if (status) exit(GZ_FAILURE); 
 
@@ -229,6 +231,7 @@ int Application5::Render()
 	GzCoord		allNormalList[MAX_VERTICES];
 	GzTextureIndex		allUVList[MAX_VERTICES];
 	GzTextureIndex  	uvList[3];		/* vertex texture map indices */ 
+	std::vector<Triangle> triangleList;
 	GzIntensity r, g, b, a;
 	GzDepth z;
 	char		dummy[256]; 
@@ -274,6 +277,7 @@ int Application5::Render()
 		int currentVertex = 0;
 		int currentUV = 0;
 		int currentNormal = 0;
+		int currentTriangle = 0;
 		bool datavalid = false;
 		//Initialize vertex, normal, and uv lists
 		for (int i = 0; i < MAX_VERTICES; i++)
@@ -354,6 +358,18 @@ int Application5::Render()
 				normalList[2][0] = allNormalList[normalIndex3-1][0];
 				normalList[2][1] = allNormalList[normalIndex3-1][1];
 				normalList[2][2] = allNormalList[normalIndex3-1][2];
+
+				Vertex a = Vertex(vertexList[0][0], vertexList[0][1], vertexList[0][2], Point(normalList[0][0], normalList[0][1], normalList[0][2]), uvList[0][0], uvList[0][1]);
+				Vertex b = Vertex(vertexList[1][0], vertexList[1][1], vertexList[1][2], Point(normalList[1][0], normalList[1][1], normalList[1][2]), uvList[1][0], uvList[1][1]);
+				Vertex c = Vertex(vertexList[2][0], vertexList[2][1], vertexList[2][2], Point(normalList[2][0], normalList[2][1], normalList[2][2]), uvList[2][0], uvList[2][1]);
+				Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
+
+				GzColor p = { 0.5f,0.5f,0.5f };
+				GzColor e = { 0.01f,0.01f,0.01f };
+				newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
+				newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
+
+				triangleList.push_back(newTriangle);
 			}
 			//fscanf(infile, "%s %f %f %f")
 			/*fscanf(infile, "%f %f %f %f %f %f %f %f",

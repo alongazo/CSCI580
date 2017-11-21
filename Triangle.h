@@ -3,6 +3,7 @@
 #define _TRIANGLE_H
 
 #include <cmath>
+#include "gz.h"
 
 class Point {
 public:
@@ -70,6 +71,7 @@ public:
 	float u, v;
 
 	Vertex() {};
+	Vertex(float xIn, float yIn, float zIn, Point norm, float uIn, float vIn) : normal(norm), u(uIn), v(vIn) { this->x = xIn; this->y = yIn; this->z = zIn; };
 
 	bool operator==(const Vertex& p) const
 	{
@@ -85,6 +87,9 @@ class Triangle {
 public:
 	Vertex A, B, C;
 	int Index;
+	GzColor reflectance;
+	GzColor emission;
+	GzColor radiosity;
 
 	Triangle(Vertex& a, Vertex& b, Vertex& c, int index) : Index(index)
 	{
