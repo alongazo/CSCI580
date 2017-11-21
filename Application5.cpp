@@ -128,7 +128,7 @@ GzMatrix	rotateY =
 
 	status |= m_pRender->GzPutCamera(camera); 
 #endif 
-	/*camera.position[X] = -1;
+	camera.position[X] = -1;
 	camera.position[Y] = 0.0;
 	camera.position[Z] = 0.0;
 
@@ -142,7 +142,7 @@ GzMatrix	rotateY =
 
 	camera.FOV = 63.7;              /* degrees *              /* degrees */
 
-	//status |= m_pRender->GzPutCamera(camera);
+	status |= m_pRender->GzPutCamera(camera);
 	/* Start Renderer */
 	status |= m_pRender->GzBeginRender();
 
@@ -207,9 +207,9 @@ GzMatrix	rotateY =
         status |= m_pRender->GzPutAttribute(6, nameListShader, valueListShader);
 
 
-	status |= m_pRender->GzPushMatrix(scale);  
-	status |= m_pRender->GzPushMatrix(rotateY); 
-	status |= m_pRender->GzPushMatrix(rotateX); 
+	//status |= m_pRender->GzPushMatrix(scale);  
+	//status |= m_pRender->GzPushMatrix(rotateY); 
+	//status |= m_pRender->GzPushMatrix(rotateX); 
 
 	if (status) exit(GZ_FAILURE); 
 
