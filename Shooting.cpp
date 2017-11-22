@@ -30,7 +30,7 @@ void Shooting::PerformOne(Triangle* src, std::vector<Triangle>& others, Emission
 	{
 		if (iter->Id != src->Id)
 		{
-			float formFactor = 0.f;//static_cast<float>(FormFactorCalculator::inst()->LookUp(src->Id, iter->Id));
+			float formFactor = static_cast<float>(FormFactorCalculator::inst()->LookUp(src->Id, iter->Id));
 			float FdA = formFactor * src->Area() / iter->Area();
 
 			Vec3 dBi(iter->reflectance.r * src->emission.r * FdA,
