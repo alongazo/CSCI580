@@ -69,7 +69,7 @@ public:
 
 	// HW2: Render methods
 	int GzPutAttribute(int numAttributes, GzToken *nameList, GzPointer *valueList);
-	int GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList);
+	int GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList, Vec3 radiosity);
 
 	// HW3
 	int GzDefaultCamera();
@@ -106,7 +106,7 @@ private:
 	inline Vec3 compMult(const Vec3& a, const Vec3& b) { return Vec3(a.x * b.x, a.y * b.y, a.z * b.z); }
 
 	// Perform LEE triangle rasterization.
-	int lee(Vec3* positions, Vec3* normals, Vec2* uvs);
+	int lee(Vec3* positions, Vec3* normals, Vec2* uvs,Vec3 radiosity);
 
 	// Gouraud shade the triangle.
 	Vec3 gouraudShade(const Vec3& a, const Vec3& b, const Vec3& c,

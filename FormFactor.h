@@ -16,6 +16,7 @@ class FormFactorCalculator {
 public:
 	// Singleton accessor
 	static void init(const std::vector<Triangle> *triList);
+	static void init(const std::string filePath);
 	static FormFactorCalculator* inst();
 	static void destroy();
 
@@ -41,6 +42,12 @@ inline
 void FormFactorCalculator::init(const std::vector<Triangle> *triList)
 {
 	g_instance = new FormFactorCalculator(triList);
+}
+
+inline
+void FormFactorCalculator::init(const std::string filePath)
+{
+	g_instance = new FormFactorCalculator(filePath);
 }
 
 inline

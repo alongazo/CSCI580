@@ -436,7 +436,7 @@ int GzRender::GzPutAttribute(int numAttributes, GzToken *nameList, GzPointer *va
 	return result;
 }
 
-int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList)
+int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList, Vec3 radiosity)
 /* numParts - how many names and values */
 {
 /*
@@ -455,7 +455,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
 			{
-				lee(vPositions, vNormals, vUVs);
+				lee(vPositions, vNormals, vUVs,radiosity);
 			}
 			break;
 
@@ -465,7 +465,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
 			{
-				lee(vPositions, vNormals, vUVs);
+				lee(vPositions, vNormals, vUVs,radiosity);
 			}
 			break;
 
@@ -475,7 +475,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && hasUV)
 			{
-				lee(vPositions, vNormals, vUVs);
+				lee(vPositions, vNormals, vUVs,radiosity);
 			}
 			break;
 
@@ -493,7 +493,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 /* Helper Methods                           */
 /********************************************/
 
-int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs)
+int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
 {
 	if (!hasPosition || !hasNormal || (tex_fun != nullptr && !hasUV) || 
 		positions == nullptr || normals == nullptr || (tex_fun != nullptr && uvs == nullptr))
@@ -622,22 +622,22 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs)
 				{
 					Vec3 color;
 
-					switch (interp_mode)
+					/*switch (interp_mode)
 					{
-					case GZ_FLAT: /* flat */
+					case GZ_FLAT: // flat 
 						color = Vec3(planeParamA);
 						break;
 
-					case GZ_COLOR: /* gouraud */
+					case GZ_COLOR: // gouraud 
 						color = gouraudShade(a, b, c, an, bn, cn, planeParamU, planeParamV, Vec3(x, y, z));
 						break;
 
-					case GZ_NORMALS: /* phong */
+					case GZ_NORMALS: // phong
 						color = phongShade(planeParamA, planeParamB, planeParamC,
 										   planeParamU, planeParamV, Vec3(x, y, z));
 						break;
-					}
-
+					}*/
+					color = radiosity;
 					//Vec3 color(shade_func(planeParamA, planeParamB, planeParamC, 
 					//                      planeParamU, planeParamV, Vec2(x, y)));
 					GzPut(x, y, ctoi(weight * color[0]), ctoi(weight * color[1]),

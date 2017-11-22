@@ -13,6 +13,7 @@
 #include "FormFactor.h"
 #include "Gz.h"
 #include "rend.h"
+#include "Shooting.h"
 #include <iostream>
 
 #ifdef _DEBUG
@@ -30,9 +31,11 @@ static char THIS_FILE[] = __FILE__;
 extern int tex_fun(float u, float v, GzColor color); /* image texture function */
 extern int ptex_fun(float u, float v, GzColor color); /* procedural texture function */
 extern int GzFreeTexture();
+extern FormFactorCalculator g_instance;
 
 void shade(GzCoord norm, GzCoord color);
 static 	std::vector<Triangle> triangleList;
+static Shooting::EmissionQueue emissionList;
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -165,7 +168,111 @@ int Application5::Initialize()
 	/*
 	renderer is ready for frame --- define lights and shader at start of frame
 	*/
+	FILE *infile;
+	if ((infile = fopen(INFILE, "r")) == NULL)
+	{
+		AfxMessageBox("The input file was not opened\n");
+		return GZ_FAILURE;
+	}
 
+	FILE *outfile;
+	if ((outfile = fopen(OUTFILE, "wb")) == NULL)
+	{
+		AfxMessageBox("The output file was not opened\n");
+		return GZ_FAILURE;
+	}
+	int currentVertex = 0;
+	int currentUV = 0;
+	int currentNormal = 0;
+	int currentTriangle = 0;
+	bool datavalid = false;
+	//Initialize vertex, normal, and uv lists
+	for (int i = 0; i < MAX_VERTICES; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			allVertexList[i][j] = (float)MININT;
+			allNormalList[i][j] = (float)MININT;
+			if (j < 2)
+				allUVList[i][j] = (float)MININT;
+		}
+	}
+	while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
+												//vertexList[0][0] = (float)MININT;
+		if (strcmp(dummy, "v") == 0)
+		{
+			fscanf(infile, "%f %f %f", &allVertexList[currentVertex][0], &allVertexList[currentVertex][1], &allVertexList[currentVertex][2]);
+			currentVertex++;
+		}
+		if (strcmp(dummy, "vt") == 0)
+		{
+			fscanf(infile, "%f %f", &allUVList[currentUV][0], &allUVList[currentUV][1], &allUVList[currentUV][2]);
+			currentUV++;
+
+		}
+		if (strcmp(dummy, "vn") == 0)
+		{
+			fscanf(infile, "%f %f %f", &allNormalList[currentNormal][0], &allNormalList[currentNormal][1], &allNormalList[currentNormal][2]);
+			currentNormal++;
+
+		}
+		if (strcmp(dummy, "f") == 0)
+		{
+			int vertexIndex1;
+			int uvIndex1;
+			int normalIndex1;
+
+			int vertexIndex2;
+			int uvIndex2;
+			int normalIndex2;
+
+			int vertexIndex3;
+			int uvIndex3;
+			int normalIndex3;
+			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
+			//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
+			Point n1 = Point(allNormalList[normalIndex1 - 1][0], allNormalList[normalIndex1 - 1][1], -allNormalList[normalIndex1 - 1][2]);
+			Point n2 = Point(allNormalList[normalIndex2 - 1][0], allNormalList[normalIndex2 - 1][1], -allNormalList[normalIndex2 - 1][2]);
+			Point n3 = Point(allNormalList[normalIndex3 - 1][0], allNormalList[normalIndex3 - 1][1], -allNormalList[normalIndex3 - 1][2]);
+
+			Vertex a = Vertex(allVertexList[vertexIndex1 - 1][0], allVertexList[vertexIndex1 - 1][1], -allVertexList[vertexIndex1 - 1][2], n1, allUVList[uvIndex1 - 1][0], allUVList[uvIndex1 - 1][1]);
+			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], -allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
+			Vertex c = Vertex(allVertexList[vertexIndex3 - 1][0], allVertexList[vertexIndex3 - 1][1], -allVertexList[vertexIndex3 - 1][2], n3, allUVList[uvIndex3 - 1][0], allUVList[uvIndex3 - 1][1]);
+			Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
+
+			
+			GzColor p = { 0.5f,0.5f,0.5f };
+			GzColor e = { 0.5f,0.5f,0.5f };
+			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
+			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
+			
+
+			triangleList.push_back(newTriangle);
+			emissionList.push(newTriangle);
+		}
+
+	}
+	if (fclose(infile))
+		AfxMessageBox(_T("The input file was not closed\n"));
+
+	if (fclose(outfile))
+		AfxMessageBox(_T("The output file was not closed\n"));
+
+	//Calculate/Load Form Factors
+	FILE *forminfile;
+	if ((forminfile = fopen(FORMINFILE, "r")) == NULL)
+	{
+		FormFactorCalculator::init(&triangleList);
+		FormFactorCalculator::inst()->CalculateForms();
+		FormFactorCalculator::inst()->SaveForms(FORMOUTFILE);
+	}
+	else
+	{
+		fclose(forminfile);
+		FormFactorCalculator::init(FORMINFILE);
+	}
+
+	Shooting::Perform(emissionList, triangleList);
 	/*
 	* Tokens associated with light parameters
 	*/
@@ -202,123 +309,19 @@ int Application5::Initialize()
 	nameListShader[4] = GZ_DISTRIBUTION_COEFFICIENT;
 	specpower = 32;
 	valueListShader[4] = (GzPointer)&specpower;
-
-	nameListShader[5] = GZ_TEXTURE_MAP;
+	//nameListShader[5] = GZ_TEXTURE_MAP;
 #if 0   /* set up null texture function or valid pointer */
 	valueListShader[5] = (GzPointer)0;
 #else
-	valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
+	//valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
 #endif
-	status |= m_pRender->GzPutAttribute(6, nameListShader, valueListShader);
+	status |= m_pRender->GzPutAttribute(5, nameListShader, valueListShader);
 
 
 	//status |= m_pRender->GzPushMatrix(scale);  
 	//status |= m_pRender->GzPushMatrix(rotateY); 
 	//status |= m_pRender->GzPushMatrix(rotateX);
-	FILE *infile;
-	if ((infile = fopen(INFILE, "r")) == NULL)
-	{
-		AfxMessageBox("The input file was not opened\n");
-		return GZ_FAILURE;
-	}
-
-	FILE *outfile;
-	if ((outfile = fopen(OUTFILE, "wb")) == NULL)
-	{
-		AfxMessageBox("The output file was not opened\n");
-		return GZ_FAILURE;
-	}
-	int currentVertex = 0;
-	int currentUV = 0;
-	int currentNormal = 0;
-	int currentTriangle = 0;
-	bool datavalid = false;
-	//Initialize vertex, normal, and uv lists
-	for (int i = 0; i < MAX_VERTICES; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			allVertexList[i][j] = (float)MININT;
-			allNormalList[i][j] = (float)MININT;
-			if (j < 2)
-				allUVList[i][j] = (float)MININT;
-		}
-	}
-	while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
-		//vertexList[0][0] = (float)MININT;
-		if (strcmp(dummy, "v") == 0)
-		{
-			fscanf(infile, "%f %f %f", &allVertexList[currentVertex][0], &allVertexList[currentVertex][1], &allVertexList[currentVertex][2]);
-			currentVertex++;
-		}
-		if (strcmp(dummy, "vt") == 0)
-		{
-			fscanf(infile, "%f %f", &allUVList[currentUV][0], &allUVList[currentUV][1], &allUVList[currentUV][2]);
-			currentUV++;
-
-		}
-		if (strcmp(dummy, "vn") == 0)
-		{
-			fscanf(infile, "%f %f %f", &allNormalList[currentNormal][0], &allNormalList[currentNormal][1], &allNormalList[currentNormal][2]);
-			currentNormal++;
-
-		}
-		if (strcmp(dummy, "f") == 0)
-		{
-			int vertexIndex1;
-			int uvIndex1;
-			int normalIndex1;
-
-			int vertexIndex2;
-			int uvIndex2;
-			int normalIndex2;
-
-			int vertexIndex3;
-			int uvIndex3;
-			int normalIndex3;
-			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
-			//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
-			Point n1 = Point(-allNormalList[normalIndex1 - 1][0], -allNormalList[normalIndex1 - 1][1], -allNormalList[normalIndex1 - 1][2]);
-			Point n2 = Point(-allNormalList[normalIndex2 - 1][0], -allNormalList[normalIndex2 - 1][1], -allNormalList[normalIndex2 - 1][2]);
-			Point n3 = Point(-allNormalList[normalIndex3 - 1][0], -allNormalList[normalIndex3 - 1][1], -allNormalList[normalIndex3 - 1][2]);
-
-			Vertex a = Vertex(allVertexList[vertexIndex1 - 1][0], allVertexList[vertexIndex1 - 1][1], allVertexList[vertexIndex1 - 1][2], n1, allUVList[uvIndex1 - 1][0], allUVList[uvIndex1 - 1][1]);
-			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
-			Vertex c = Vertex(allVertexList[vertexIndex3 - 1][0], allVertexList[vertexIndex3 - 1][1], allVertexList[vertexIndex3 - 1][2], n3, allUVList[uvIndex3 - 1][0], allUVList[uvIndex3 - 1][1]);
-			Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
-
-			/*
-			GzColor p = { 0.5f,0.5f,0.5f };
-			GzColor e = { 0.01f,0.01f,0.01f };
-			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
-			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
-			*/
-
-			triangleList.push_back(newTriangle);
-		}
-
-	}
-	if (fclose(infile))
-		AfxMessageBox(_T("The input file was not closed\n"));
-
-	if (fclose(outfile))
-		AfxMessageBox(_T("The output file was not closed\n"));
-
-	//Calculate/Load Form Factors
-	FILE *forminfile;
-	if ((forminfile = fopen(FORMINFILE, "r")) == NULL)
-	{
-		FormFactorCalculator formFactors(&triangleList);
-		formFactors.CalculateForms();
-		formFactors.SaveForms(FORMOUTFILE);
-	}
-	else
-	{
-		fclose(forminfile);
-		FormFactorCalculator formFactors(FORMINFILE);
-	}
 	
-
 	//if (fclose(forminfile))
 	//	AfxMessageBox(_T("The input file was not closed\n"));
 
@@ -399,6 +402,7 @@ int Application5::Render()
 			}
 		}
 
+
 		// render each triangle
 		for (Triangle t : triangleList)
 		{
@@ -438,7 +442,7 @@ int Application5::Render()
 			valueListTriangle[0] = (GzPointer)vertexList;
 			valueListTriangle[1] = (GzPointer)normalList;
 			valueListTriangle[2] = (GzPointer)uvList;
-			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
+			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle,t.radiosity);
 		}
 		// copy weighted colors to tmp AA buffer
 		for (int i = 0; i < m_nWidth; ++i)
@@ -496,7 +500,7 @@ int Application5::Clean()
 	* Clean up and exit
 	*/
 	int	status = 0;
-
+	FormFactorCalculator::destroy();
 	free(m_pRender);
 	free(m_pAABuffer);
 	status |= GzFreeTexture();
