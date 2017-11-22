@@ -72,8 +72,11 @@ public:
 	float u, v;
 
 	Vertex() {};
-	Vertex(float xIn, float yIn, float zIn, Point norm, float uIn, float vIn) : Normal(norm), u(uIn), v(vIn) 
-	{ this->x = xIn; this->y = yIn; this->z = zIn; };
+	Vertex(float xIn, float yIn, float zIn, Point norm, float uIn, float vIn) : u(uIn), v(vIn) 
+	{
+		this->x = xIn; this->y = yIn; this->z = zIn; 
+		Normal.x = norm.x; Normal.y = norm.y; Normal.z = norm.z;
+	};
 
 	bool operator==(const Vertex& p) const
 	{
