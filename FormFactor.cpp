@@ -10,19 +10,30 @@ FormFactorCalculator::FormFactorCalculator(const std::vector<Triangle> *patchLis
 	hemiCube = new HemiCube(100, patchList);
 	formMap = new std::map<int, std::map<int, double>>();
 }
-
+FormFactorCalculator::FormFactorCalculator(std::string filePath)
+{
+	formMap = new std::map<int, std::map<int, double>>();
+	hemiCube = NULL;
+	patchList = NULL;
+	LoadForms(filePath);
+}
 FormFactorCalculator::~FormFactorCalculator()
 {
-	delete hemiCube, formMap;
+	if (hemiCube != NULL)
+		delete hemiCube;
+	delete formMap;
 }
 
 void FormFactorCalculator::CalculateForms()
 {
-	for (auto tri : *patchList)
+	if (patchList != NULL)
 	{
-		std::map<int, double> partial;
-		hemiCube->FormFactor(&tri, &partial);
-		formMap->emplace(tri.Id, partial);
+		for (auto tri : *patchList)
+		{
+			std::map<int, double> partial;
+			hemiCube->FormFactor(&tri, &partial);
+			formMap->emplace(tri.Id, partial);
+		}
 	}
 }
 
@@ -46,13 +57,14 @@ void FormFactorCalculator::SaveForms(std::string filePath)
 	outfile.clear();
 	for (auto pair : *formMap)
 	{
-		outfile << pair.first << " ";
+		outfile << pair.first;
 		for (auto pair2 : pair.second)
 		{
-			outfile << pair2.first << " " << pair2.second;
+			outfile << " " << pair2.first << " " << pair2.second;
 		}
 		outfile << std::endl;
 	}
+	outfile.close();
 }
 
 void FormFactorCalculator::LoadForms(std::string filePath)
@@ -76,4 +88,5 @@ void FormFactorCalculator::LoadForms(std::string filePath)
 		}
 
 	}
+	infile.close();
 }

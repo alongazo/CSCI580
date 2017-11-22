@@ -23,6 +23,8 @@ static char THIS_FILE[] = __FILE__;
 
 #define INFILE  "radiosityTestScene2.obj"
 #define OUTFILE "output.ppm"
+#define FORMINFILE "formFactors.txt"
+#define FORMOUTFILE "formFactors.txt"
 #define MAX_VERTICES 10000
 
 extern int tex_fun(float u, float v, GzColor color); /* image texture function */
@@ -276,9 +278,9 @@ int Application5::Initialize()
 			int normalIndex3;
 			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
 			//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
-			Point n1 = Point(allNormalList[normalIndex1 - 1][0], allNormalList[normalIndex1 - 1][1], allNormalList[normalIndex1 - 1][2]);
-			Point n2 = Point(allNormalList[normalIndex2 - 1][0], allNormalList[normalIndex2 - 1][1], allNormalList[normalIndex2 - 1][2]);
-			Point n3 = Point(allNormalList[normalIndex3 - 1][0], allNormalList[normalIndex3 - 1][1], allNormalList[normalIndex3 - 1][2]);
+			Point n1 = Point(-allNormalList[normalIndex1 - 1][0], -allNormalList[normalIndex1 - 1][1], -allNormalList[normalIndex1 - 1][2]);
+			Point n2 = Point(-allNormalList[normalIndex2 - 1][0], -allNormalList[normalIndex2 - 1][1], -allNormalList[normalIndex2 - 1][2]);
+			Point n3 = Point(-allNormalList[normalIndex3 - 1][0], -allNormalList[normalIndex3 - 1][1], -allNormalList[normalIndex3 - 1][2]);
 
 			Vertex a = Vertex(allVertexList[vertexIndex1 - 1][0], allVertexList[vertexIndex1 - 1][1], allVertexList[vertexIndex1 - 1][2], n1, allUVList[uvIndex1 - 1][0], allUVList[uvIndex1 - 1][1]);
 			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
@@ -295,19 +297,31 @@ int Application5::Initialize()
 			triangleList.push_back(newTriangle);
 		}
 
-		/*
-		* Set the value pointers to the first vertex of the
-		* triangle, then feed it to the renderer
-		* NOTE: this sequence matches the nameList token sequence
-		*/
-		/*if (vertexList[0][0] != (float)MININT)
-		{
-			valueListTriangle[0] = (GzPointer)vertexList;
-			valueListTriangle[1] = (GzPointer)normalList;
-			valueListTriangle[2] = (GzPointer)uvList;
-			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
-		}*/
 	}
+	if (fclose(infile))
+		AfxMessageBox(_T("The input file was not closed\n"));
+
+	if (fclose(outfile))
+		AfxMessageBox(_T("The output file was not closed\n"));
+
+	//Calculate/Load Form Factors
+	FILE *forminfile;
+	if ((forminfile = fopen(FORMINFILE, "r")) == NULL)
+	{
+		FormFactorCalculator formFactors(&triangleList);
+		formFactors.CalculateForms();
+		formFactors.SaveForms(FORMOUTFILE);
+	}
+	else
+	{
+		fclose(forminfile);
+		FormFactorCalculator formFactors(FORMINFILE);
+	}
+	
+
+	//if (fclose(forminfile))
+	//	AfxMessageBox(_T("The input file was not closed\n"));
+
 	if (status) exit(GZ_FAILURE);
 
 	if (status)
@@ -386,99 +400,6 @@ int Application5::Render()
 		}
 
 		// render each triangle
-		/*while (fscanf(infile, "%s", dummy) == 1) { 	// read in tri word 
-			vertexList[0][0] = (float)MININT;
-			if (strcmp(dummy, "v") == 0)
-			{
-				fscanf(infile, "%f %f %f", &allVertexList[currentVertex][0], &allVertexList[currentVertex][1], &allVertexList[currentVertex][2]);
-				currentVertex++;
-			}
-			if (strcmp(dummy, "vt") == 0)
-			{
-				fscanf(infile, "%f %f", &allUVList[currentUV][0], &allUVList[currentUV][1], &allUVList[currentUV][2]);
-				currentUV++;
-
-			}
-			if (strcmp(dummy, "vn") == 0)
-			{
-				fscanf(infile, "%f %f %f", &allNormalList[currentNormal][0], &allNormalList[currentNormal][1], &allNormalList[currentNormal][2]);
-				currentNormal++;
-
-			}
-			if (strcmp(dummy, "f") == 0)
-			{
-				int vertexIndex1;
-				int uvIndex1;
-				int normalIndex1;
-
-				int vertexIndex2;
-				int uvIndex2;
-				int normalIndex2;
-
-				int vertexIndex3;
-				int uvIndex3;
-				int normalIndex3;
-				fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
-				//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
-				vertexList[0][0] = allVertexList[vertexIndex1 - 1][0];
-				vertexList[0][1] = allVertexList[vertexIndex1 - 1][1];
-				vertexList[0][2] = allVertexList[vertexIndex1 - 1][2];
-
-				vertexList[1][0] = allVertexList[vertexIndex2 - 1][0];
-				vertexList[1][1] = allVertexList[vertexIndex2 - 1][1];
-				vertexList[1][2] = allVertexList[vertexIndex2 - 1][2];
-
-				vertexList[2][0] = allVertexList[vertexIndex3 - 1][0];
-				vertexList[2][1] = allVertexList[vertexIndex3 - 1][1];
-				vertexList[2][2] = allVertexList[vertexIndex3 - 1][2];
-
-				uvList[0][0] = allUVList[uvIndex1 - 1][0];
-				uvList[0][1] = allUVList[uvIndex1 - 1][1];
-
-				uvList[1][0] = allUVList[uvIndex2 - 1][0];
-				uvList[1][1] = allUVList[uvIndex2 - 1][1];
-
-				uvList[2][0] = allUVList[uvIndex3 - 1][0];
-				uvList[2][1] = allUVList[uvIndex3 - 1][1];
-
-				normalList[0][0] = allNormalList[normalIndex1 - 1][0];
-				normalList[0][1] = allNormalList[normalIndex1 - 1][1];
-				normalList[0][2] = allNormalList[normalIndex1 - 1][2];
-
-				normalList[1][0] = allNormalList[normalIndex2 - 1][0];
-				normalList[1][1] = allNormalList[normalIndex2 - 1][1];
-				normalList[1][2] = allNormalList[normalIndex2 - 1][2];
-
-				normalList[2][0] = allNormalList[normalIndex3 - 1][0];
-				normalList[2][1] = allNormalList[normalIndex3 - 1][1];
-				normalList[2][2] = allNormalList[normalIndex3 - 1][2];
-
-				Vertex a = Vertex(vertexList[0][0], vertexList[0][1], vertexList[0][2], Point(normalList[0][0], normalList[0][1], normalList[0][2]), uvList[0][0], uvList[0][1]);
-				Vertex b = Vertex(vertexList[1][0], vertexList[1][1], vertexList[1][2], Point(normalList[1][0], normalList[1][1], normalList[1][2]), uvList[1][0], uvList[1][1]);
-				Vertex c = Vertex(vertexList[2][0], vertexList[2][1], vertexList[2][2], Point(normalList[2][0], normalList[2][1], normalList[2][2]), uvList[2][0], uvList[2][1]);
-				Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
-
-				GzColor p = { 0.5f,0.5f,0.5f };
-				GzColor e = { 0.01f,0.01f,0.01f };
-				newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
-				newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
-
-				triangleList.push_back(newTriangle);
-			}
-
-			/*
-			* Set the value pointers to the first vertex of the
-			* triangle, then feed it to the renderer
-			* NOTE: this sequence matches the nameList token sequence
-			
-			if (vertexList[0][0] != (float)MININT)
-			{
-				valueListTriangle[0] = (GzPointer)vertexList;
-				valueListTriangle[1] = (GzPointer)normalList;
-				valueListTriangle[2] = (GzPointer)uvList;
-				m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
-			}
-		}*/
 		for (Triangle t : triangleList)
 		{
 			vertexList[0][0] = t.A.x;
@@ -517,7 +438,6 @@ int Application5::Render()
 			valueListTriangle[0] = (GzPointer)vertexList;
 			valueListTriangle[1] = (GzPointer)normalList;
 			valueListTriangle[2] = (GzPointer)uvList;
-			std::cout << t.Id << std::endl;
 			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
 		}
 		// copy weighted colors to tmp AA buffer

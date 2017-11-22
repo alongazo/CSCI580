@@ -6,6 +6,7 @@
 #include "HemiCube.h"
 #include <vector>
 #include <map>
+#include <string>
 
 #ifndef PI
 #define PI (float) 3.14159265358979323846
@@ -13,7 +14,9 @@
 
 class FormFactorCalculator {
 public:
+	FormFactorCalculator() {};
 	FormFactorCalculator(const std::vector<Triangle> *triList);
+	FormFactorCalculator(std::string filePath);
 	~FormFactorCalculator();
 
 	void CalculateForms();
