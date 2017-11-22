@@ -460,7 +460,7 @@ float dot(const Vec2& a, const Vec2& b)
 
 // Perform a 3D dot product.
 inline
-float dot(const Vec3& a, const Vec3& b)
+constexpr float dot(const Vec3& a, const Vec3& b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
@@ -488,7 +488,7 @@ float length2(const Vec2& v)
 
 // Get the squared length (mangitude of a vector).
 inline
-float length2(const Vec3& v)
+constexpr float length2(const Vec3& v)
 {
 	return dot(v, v);
 }

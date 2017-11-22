@@ -144,6 +144,7 @@
     <ClCompile Include="rend.cpp" />
     <ClCompile Include="RotateDlg.cpp" />
     <ClCompile Include="ScaleDlg.cpp" />
+    <ClCompile Include="Shooting.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</PrecompiledHeaderFile>
@@ -174,6 +175,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotateDlg.h" />
     <ClInclude Include="ScaleDlg.h" />
+    <ClInclude Include="Shooting.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TranslateDlg.h" />
     <ClInclude Include="Triangle.h" />

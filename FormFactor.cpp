@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <string>
 
+FormFactorCalculator* FormFactorCalculator::g_instance = nullptr;
+
 FormFactorCalculator::FormFactorCalculator(const std::vector<Triangle> *patchList) : patchList(patchList)
 {
 	hemiCube = new HemiCube(100, patchList);
