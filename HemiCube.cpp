@@ -5,6 +5,7 @@
 #include "HemiCube.h"
 #include "MinRend.h"
 #include <iostream>
+#include "rend.h"
 
 #ifndef PI
 #define PI (float) 3.14159265358979323846
@@ -28,8 +29,8 @@ void HemiCube::FillTables()
 		for (int x = 0; x < dx; ++x)
 		{
 			p = ARRAY(x, y);
-			topWeightTable[p] = 1.0 / (PI* pow(1 + pow(x - dx / 2.0, 2) + pow(y - dy / 2.0, 2), 2));
-			sideWeightTable[p] = (dy - y) / (PI * pow(1 + pow(x - dx / 2.0, 2) + pow(dy - y, 2), 2));
+			topWeightTable[p] = 1.0 / (PI* pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(y - dy / 2.0, 2), 2));
+			sideWeightTable[p] = (dy - y) / (PI * pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(dy - y, 2), 2));
 
 			total += topWeightTable[p] + (4 * sideWeightTable[p]);
 		}
@@ -89,12 +90,19 @@ double HemiCube::DeltaForm(int px, int py, bool isTop)
 
 Point HemiCube::Rotate(Point p, float degrees, Point about)
 {
-	double A = degrees * (PI / 180);
-	double c = cos(A);
-	double s = sin(A);
-	double C = 1.0 - c;
+	float rad = (PI / 180) * degrees;
+	float s = sin(rad);
+	float c = cos(rad);
 
-	double Q[3][3];
+	return p*c + (about.Cross(p))*s + p*(about.Dot(p))*(1 - c);
+
+	/*
+	float A = degrees * (PI / 180);
+	float c = cos(A);
+	float s = sin(A);
+	float C = 1.0 - c;
+
+	float Q[3][3];
 	Q[0][0] = about.x * about.x * C + c;
 	Q[0][1] = about.y * about.x * C + about.z * s;
 	Q[0][2] = about.z * about.x * C - about.y * s;
@@ -108,10 +116,10 @@ Point HemiCube::Rotate(Point p, float degrees, Point about)
 	Q[2][2] = about.z * about.z * C + c;
 
 	Point result;
-	result.x = float(p.x * Q[0][0] + p.x * Q[0][1] + p.x * Q[0][2]);
-	result.y = float(p.y * Q[1][0] + p.y * Q[1][1] + p.y * Q[1][2]);
-	result.z = float(p.z * Q[2][0] + p.z * Q[2][1] + p.z * Q[2][2]);
-	return result;
+	result.x = p.x * Q[0][0] + p.x * Q[0][1] + p.x * Q[0][2]);
+	result.y = p.y * Q[1][0] + p.y * Q[1][1] + p.y * Q[1][2]);
+	result.z = p.z * Q[2][0] + p.z * Q[2][1] + p.z * Q[2][2]);
+	return result;*/
 }
 
 void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, double> *formMap)
@@ -126,7 +134,7 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 	switch (dir)
 	{
 	case Direction::UP:
-		lookAt = normal*2;
+		lookAt = normal;
 		break;
 	case Direction::LEFT:
 		lookAt = Rotate(normal, 45, tangent);
@@ -149,7 +157,7 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		{ center.x, center.y, center.z } /*position*/,
 		{ lookAt.x, lookAt.y, lookAt.z } /*lookat*/,
 		{ normal.x, normal.y, normal.z } /*worldup*/,
-		90 /*FOV*/
+		90/*FOV*/
 	};
 
 	MinRender* render = new MinRender(dx, dy);
@@ -161,8 +169,15 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		render->GzPutTriangle(&tri);
 	}
 
+	
+	/*std::string s("Views\\Rend" + std::to_string(shooter->Id));
+	s = s.append("_" + std::to_string(dir));
+	s = s.append(".txt");
+	render->GzFlushToFile(s.c_str());*/
+
+
 	//Calculate DeltaFormFactors
-	long id = -1;
+	int id = -1;
 	GzDepth z;
 	std::multimap<int, double> *deltaMap = new std::multimap<int, double>();
 	for (int p_x = 0; p_x < dx; ++p_x)
@@ -170,7 +185,6 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		for (int p_y = 0; p_y < dy; ++p_y)
 		{
 			render->GzGet(p_x, p_y, &id, &z);
-			if (id != -1)
 			{
 				deltaMap->emplace(id, DeltaForm(p_x, p_y, isTop));
 			}

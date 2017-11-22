@@ -14,7 +14,7 @@
 #define	MINREND_MATLEVELS	100		/* how many matrix pushes allowed */
 #define MINREND_DEFAULTID -1
 typedef struct {
-	long id;
+	int id;
 	GzDepth z;
 } MinPixel;
 
@@ -41,8 +41,8 @@ public:
 	// HW1: Display methods
 	int GzDefault();
 	int GzBeginRender();
-	int GzPut(int i, int j, long id, GzDepth z);
-	int GzGet(int i, int j, long *id, GzDepth *z);
+	int GzPut(int i, int j, int id, GzDepth z);
+	int GzGet(int i, int j, int *id, GzDepth *z);
 
 	// HW2: Render methods
 	int GzPutTriangle(Triangle *triangle);

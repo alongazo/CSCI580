@@ -343,7 +343,7 @@ void Rasterizer::Rasterize(MinRender *render, GzCoord *vertexes, int id)
 	//Run through all points in bounding box and color points in triangle
 	float w0, w1, w2;
 	GzDepth z, oldZ;
-	long oldId;
+	int oldId;
 	for (int y = minY; y <= maxY; y++)
 	{
 		for (int x = minX; x <= maxX; x++)
@@ -624,8 +624,7 @@ int MinRender::GzPopMatrix()
 	return GZ_SUCCESS;
 }
 
-
-int MinRender::GzPut(int i, int j, long id, GzDepth z)
+int MinRender::GzPut(int i, int j, int id, GzDepth z)
 {
 	/* HW1.4 write pixel values into the buffer */
 	if (pixelbuffer == NULL || MinRenderHelper::Visible(i, j, xres, yres) != GZ_SUCCESS)
@@ -638,7 +637,7 @@ int MinRender::GzPut(int i, int j, long id, GzDepth z)
 	return GZ_SUCCESS;
 }
 
-int MinRender::GzGet(int i, int j, long *id, GzDepth *z)
+int MinRender::GzGet(int i, int j, int *id, GzDepth *z)
 {
 	/* HW1.5 retrieve a pixel information from the pixel buffer */
 	if (pixelbuffer == NULL || MinRenderHelper::Visible(i, j, xres, yres) != GZ_SUCCESS)
@@ -681,16 +680,16 @@ int MinRender::GzFlushToFile(const char* filepath)
 	output.open(filepath);
 	output.clear();
 
-	for (int x = 0; x < xres; ++x)
+	for (int y = 0; y < yres; ++y)
 	{
-		for (int y = 0; y < yres; ++y)
+		for (int x = 0; x < xres; ++x)
 		{
-			MinPixel pixel = pixelbuffer[ARRAY(x, y)];
-			output << pixel.id << " ";
+			output << " " << pixelbuffer[ARRAY(x, y)].id;
 		}
 		output << std::endl;
 	}
 
+	output << std::endl;
 	output.close();
 	return GZ_SUCCESS;
 }
