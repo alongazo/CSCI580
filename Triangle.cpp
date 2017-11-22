@@ -17,7 +17,7 @@ void Triangle::OrderVertices(Vertex a, Vertex b, Vertex c)
 	}
 	else
 	{
-		C = a;
+		A = c;
 		OrderRemaining(c, a, b);
 	}
 }

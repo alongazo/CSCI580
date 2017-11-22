@@ -13,6 +13,7 @@
 #include "FormFactor.h"
 #include "Gz.h"
 #include "rend.h"
+#include <iostream>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -29,7 +30,7 @@ extern int ptex_fun(float u, float v, GzColor color); /* procedural texture func
 extern int GzFreeTexture();
 
 void shade(GzCoord norm, GzCoord color);
-
+static 	std::vector<Triangle> triangleList;
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -65,6 +66,10 @@ int Application5::Initialize()
 	GzPointer   valueListShader[9];		/* shader attribute pointers */
 	GzToken     nameListLights[10];		/* light info */
 	GzPointer   valueListLights[10];
+	GzCoord		allVertexList[MAX_VERTICES];
+	GzCoord		allNormalList[MAX_VERTICES];
+	GzTextureIndex		allUVList[MAX_VERTICES];
+	char		dummy[256];
 	int			shaderType, interpStyle;
 	float		specpower;
 	int		status;
@@ -207,8 +212,102 @@ int Application5::Initialize()
 
 	//status |= m_pRender->GzPushMatrix(scale);  
 	//status |= m_pRender->GzPushMatrix(rotateY); 
-	//status |= m_pRender->GzPushMatrix(rotateX); 
+	//status |= m_pRender->GzPushMatrix(rotateX);
+	FILE *infile;
+	if ((infile = fopen(INFILE, "r")) == NULL)
+	{
+		AfxMessageBox("The input file was not opened\n");
+		return GZ_FAILURE;
+	}
 
+	FILE *outfile;
+	if ((outfile = fopen(OUTFILE, "wb")) == NULL)
+	{
+		AfxMessageBox("The output file was not opened\n");
+		return GZ_FAILURE;
+	}
+	int currentVertex = 0;
+	int currentUV = 0;
+	int currentNormal = 0;
+	int currentTriangle = 0;
+	bool datavalid = false;
+	//Initialize vertex, normal, and uv lists
+	for (int i = 0; i < MAX_VERTICES; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			allVertexList[i][j] = (float)MININT;
+			allNormalList[i][j] = (float)MININT;
+			if (j < 2)
+				allUVList[i][j] = (float)MININT;
+		}
+	}
+	while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
+		//vertexList[0][0] = (float)MININT;
+		if (strcmp(dummy, "v") == 0)
+		{
+			fscanf(infile, "%f %f %f", &allVertexList[currentVertex][0], &allVertexList[currentVertex][1], &allVertexList[currentVertex][2]);
+			currentVertex++;
+		}
+		if (strcmp(dummy, "vt") == 0)
+		{
+			fscanf(infile, "%f %f", &allUVList[currentUV][0], &allUVList[currentUV][1], &allUVList[currentUV][2]);
+			currentUV++;
+
+		}
+		if (strcmp(dummy, "vn") == 0)
+		{
+			fscanf(infile, "%f %f %f", &allNormalList[currentNormal][0], &allNormalList[currentNormal][1], &allNormalList[currentNormal][2]);
+			currentNormal++;
+
+		}
+		if (strcmp(dummy, "f") == 0)
+		{
+			int vertexIndex1;
+			int uvIndex1;
+			int normalIndex1;
+
+			int vertexIndex2;
+			int uvIndex2;
+			int normalIndex2;
+
+			int vertexIndex3;
+			int uvIndex3;
+			int normalIndex3;
+			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
+			//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
+			Point n1 = Point(allNormalList[normalIndex1 - 1][0], allNormalList[normalIndex1 - 1][1], allNormalList[normalIndex1 - 1][2]);
+			Point n2 = Point(allNormalList[normalIndex2 - 1][0], allNormalList[normalIndex2 - 1][1], allNormalList[normalIndex2 - 1][2]);
+			Point n3 = Point(allNormalList[normalIndex3 - 1][0], allNormalList[normalIndex3 - 1][1], allNormalList[normalIndex3 - 1][2]);
+
+			Vertex a = Vertex(allVertexList[vertexIndex1 - 1][0], allVertexList[vertexIndex1 - 1][1], allVertexList[vertexIndex1 - 1][2], n1, allUVList[uvIndex1 - 1][0], allUVList[uvIndex1 - 1][1]);
+			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
+			Vertex c = Vertex(allVertexList[vertexIndex3 - 1][0], allVertexList[vertexIndex3 - 1][1], allVertexList[vertexIndex3 - 1][2], n3, allUVList[uvIndex3 - 1][0], allUVList[uvIndex3 - 1][1]);
+			Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
+
+			/*
+			GzColor p = { 0.5f,0.5f,0.5f };
+			GzColor e = { 0.01f,0.01f,0.01f };
+			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
+			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
+			*/
+
+			triangleList.push_back(newTriangle);
+		}
+
+		/*
+		* Set the value pointers to the first vertex of the
+		* triangle, then feed it to the renderer
+		* NOTE: this sequence matches the nameList token sequence
+		*/
+		/*if (vertexList[0][0] != (float)MININT)
+		{
+			valueListTriangle[0] = (GzPointer)vertexList;
+			valueListTriangle[1] = (GzPointer)normalList;
+			valueListTriangle[2] = (GzPointer)uvList;
+			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
+		}*/
+	}
 	if (status) exit(GZ_FAILURE);
 
 	if (status)
@@ -227,7 +326,6 @@ int Application5::Render()
 	GzCoord		allNormalList[MAX_VERTICES];
 	GzTextureIndex		allUVList[MAX_VERTICES];
 	GzTextureIndex  	uvList[3];		/* vertex texture map indices */
-	std::vector<Triangle> triangleList;
 	GzIntensity r, g, b, a;
 	GzDepth z;
 	char		dummy[256];
@@ -288,7 +386,7 @@ int Application5::Render()
 		}
 
 		// render each triangle
-		while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
+		/*while (fscanf(infile, "%s", dummy) == 1) { 	// read in tri word 
 			vertexList[0][0] = (float)MININT;
 			if (strcmp(dummy, "v") == 0)
 			{
@@ -367,31 +465,12 @@ int Application5::Render()
 
 				triangleList.push_back(newTriangle);
 			}
-			//fscanf(infile, "%s %f %f %f")
-			/*fscanf(infile, "%f %f %f %f %f %f %f %f",
-			&(vertexList[0][0]), &(vertexList[0][1]),
-			&(vertexList[0][2]),
-			&(normalList[0][0]), &(normalList[0][1]),
-			&(normalList[0][2]),
-			&(uvList[0][0]), &(uvList[0][1]));
-			fscanf(infile, "%f %f %f %f %f %f %f %f",
-			&(vertexList[1][0]), &(vertexList[1][1]),
-			&(vertexList[1][2]),
-			&(normalList[1][0]), &(normalList[1][1]),
-			&(normalList[1][2]),
-			&(uvList[1][0]), &(uvList[1][1]));
-			fscanf(infile, "%f %f %f %f %f %f %f %f",
-			&(vertexList[2][0]), &(vertexList[2][1]),
-			&(vertexList[2][2]),
-			&(normalList[2][0]), &(normalList[2][1]),
-			&(normalList[2][2]),
-			&(uvList[2][0]), &(uvList[2][1]));*/
 
 			/*
 			* Set the value pointers to the first vertex of the
 			* triangle, then feed it to the renderer
 			* NOTE: this sequence matches the nameList token sequence
-			*/
+			
 			if (vertexList[0][0] != (float)MININT)
 			{
 				valueListTriangle[0] = (GzPointer)vertexList;
@@ -399,8 +478,48 @@ int Application5::Render()
 				valueListTriangle[2] = (GzPointer)uvList;
 				m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
 			}
-		}
+		}*/
+		for (Triangle t : triangleList)
+		{
+			vertexList[0][0] = t.A.x;
+			vertexList[0][1] = t.A.y;
+			vertexList[0][2] = t.A.z;
 
+			vertexList[1][0] = t.B.x;
+			vertexList[1][1] = t.B.y;
+			vertexList[1][2] = t.B.z;
+
+			vertexList[2][0] = t.C.x;
+			vertexList[2][1] = t.C.y;
+			vertexList[2][2] = t.C.z;
+
+			uvList[0][0] = t.A.u;
+			uvList[0][1] = t.A.v;
+
+			uvList[1][0] = t.B.u;
+			uvList[1][1] = t.B.v;
+
+			uvList[2][0] = t.C.u;
+			uvList[2][1] = t.C.v;
+
+			normalList[0][0] = t.A.Normal.x;
+			normalList[0][1] = t.A.Normal.y;
+			normalList[0][2] = t.A.Normal.z;
+
+			normalList[1][0] = t.B.Normal.x;
+			normalList[1][1] = t.B.Normal.y;
+			normalList[1][2] = t.B.Normal.z;
+
+			normalList[2][0] = t.C.Normal.x;
+			normalList[2][1] = t.C.Normal.y;
+			normalList[2][2] = t.C.Normal.z;
+
+			valueListTriangle[0] = (GzPointer)vertexList;
+			valueListTriangle[1] = (GzPointer)normalList;
+			valueListTriangle[2] = (GzPointer)uvList;
+			std::cout << t.Id << std::endl;
+			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle);
+		}
 		// copy weighted colors to tmp AA buffer
 		for (int i = 0; i < m_nWidth; ++i)
 		{
