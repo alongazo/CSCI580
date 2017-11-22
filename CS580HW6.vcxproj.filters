@@ -66,6 +66,9 @@
     <ClCompile Include="HemiCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shooting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CS580HW.rc">
@@ -132,6 +135,9 @@
     </ClInclude>
     <ClInclude Include="HemiCube.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shooting.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

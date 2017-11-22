@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include "gz.h"
+#include "vec.h"
 
 class Point {
 public:
@@ -88,9 +89,9 @@ class Triangle {
 public:
 	Vertex A, B, C;
 	int Id;
-	GzColor reflectance;
-	GzColor emission;
-	GzColor radiosity;
+	Vec3 reflectance;
+	Vec3 emission;
+	Vec3 radiosity;
 
 	Triangle() {};
 	Triangle(Vertex& a, Vertex& b, Vertex& c, int index) : Id(index)

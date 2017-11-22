@@ -13,6 +13,11 @@
 
 class FormFactorCalculator {
 public:
+	// Singleton accessor
+	static void init(const std::vector<Triangle> *triList);
+	static FormFactorCalculator* inst();
+	static void destroy();
+
 	FormFactorCalculator(const std::vector<Triangle> *triList);
 	~FormFactorCalculator();
 
@@ -22,9 +27,29 @@ public:
 	void LoadForms(std::string filePath);
 
 private:
+	static FormFactorCalculator* g_instance;
+
 	HemiCube *hemiCube;
 	const std::vector<Triangle> *patchList;
 	std::map<int, std::map<int, double>> *formMap;
 };
+
+inline
+void FormFactorCalculator::init(const std::vector<Triangle> *triList)
+{
+	g_instance = new FormFactorCalculator(triList);
+}
+
+inline
+FormFactorCalculator* FormFactorCalculator::inst()
+{
+	return g_instance;
+}
+
+inline
+void FormFactorCalculator::destroy()
+{
+	delete g_instance;
+}
 
 #endif
