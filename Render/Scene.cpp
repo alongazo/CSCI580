@@ -1,12 +1,14 @@
 #include "Scene.h"
 
 #include <cassert>
+#include <map>
 
 #include "../Math/Vert.h"
 #include "../gz.h"
 
 int Scene::load(const std::string& filePath)
 {
+	// try to open the file
 	FILE *infile;
 	if ((infile = fopen(filePath.c_str(), "r")) == NULL)
 	{
@@ -14,20 +16,21 @@ int Scene::load(const std::string& filePath)
 		return GZ_FAILURE;
 	}
 
+	// prepare buffers and read file
+	std::map<int, VertPtr> vertices;
+	std::vector<Vec3> positions;
+	std::vector<Vec3> normals;
 	char objectType1[64];
 	char objectType2[64];
 	char dummy[1024];
-
-	std::vector<Vec3> vertices;
-	std::vector<Vec3> normals;
 	_triangles.clear();
 	while (fscanf(infile, "%s", dummy) == 1)
 	{
 		if (strcmp(dummy, "v") == 0)
 		{
-			Vec3 vertex;
-			fscanf(infile, "%f %f %f", &vertex.x, &vertex.y, &vertex.z);
-			vertices.push_back(vertex);
+			Vec3 position;
+			fscanf(infile, "%f %f %f", &position.x, &position.y, &position.z);
+			positions.push_back(position);
 		}
 		else if (strcmp(dummy, "vt") == 0)
 		{
@@ -64,20 +67,58 @@ int Scene::load(const std::string& filePath)
 			int normalIndex3;
 			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
 			
-			Vec3 n1 = normals[normalIndex1 - 1];
-			Vec3 n2 = normals[normalIndex2 - 1];
-			Vec3 n3 = normals[normalIndex3 - 1];
+			VertPtr v0;
+			VertPtr v1;
+			VertPtr v2;
 
-			Vec3 a = vertices[vertexIndex1 - 1];
-			Vec3 b = vertices[vertexIndex2 - 1];
-			Vec3 c = vertices[vertexIndex3 - 1];
+			// try to find existing vertex index, otherwise create a new one
+			auto pair = vertices.find(vertexIndex1);
+			if (pair != vertices.end())
+			{
+				// retrieve existing definition
+				v0 = pair->second;
+			}
+			else
+			{
+				// create new vertex
+				Vec3 a = positions[vertexIndex1 - 1];
+				Vec3 n1 = normals[normalIndex1 - 1];
+				v0 = std::make_shared<Vert>(a, n1);
+				vertices.emplace(vertexIndex1, v0);
+			}
 
-			VertPtr v0 = std::make_shared<Vert>(a, n1);
-			VertPtr v1 = std::make_shared<Vert>(b, n2);
-			VertPtr v2 = std::make_shared<Vert>(c, n3);
+			pair = vertices.find(vertexIndex2);
+			if (pair != vertices.end())
+			{
+				// retrieve existing definition
+				v1 = pair->second;
+			}
+			else
+			{
+				// create new vertex
+				Vec3 b = positions[vertexIndex2 - 1];
+				Vec3 n2 = normals[normalIndex2 - 1];
+				v1 = std::make_shared<Vert>(b, n2);
+				vertices.emplace(vertexIndex2, v1);
+			}
 
+			pair = vertices.find(vertexIndex3);
+			if (pair != vertices.end())
+			{
+				// retrieve existing definition
+				v2 = pair->second;
+			}
+			else
+			{
+				// create new vertex
+				Vec3 c = positions[vertexIndex3 - 1];
+				Vec3 n3 = normals[normalIndex3 - 1];
+				v2 = std::make_shared<Vert>(c, n3);
+				vertices.emplace(vertexIndex3, v2);
+			}
+
+			// create triangle
 			Tri tri = { v0, v1, v2, Tri::DEFAULT };
-
 			if (strstr(objectType1, "pPlane") != NULL || strstr(objectType2, "pPlane") != NULL)
 			{
 				tri.type = Tri::PLANE;
@@ -98,6 +139,8 @@ int Scene::load(const std::string& filePath)
 			{
 				tri.type = Tri::RED_WALL;
 			}
+
+			// add triangle to list
 			_triangles.push_back(tri);
 		}
 	}
@@ -148,6 +191,7 @@ PatchCollectionPtr Scene::createPatches() const
 	materials[(int)Tri::RED_WALL]->reflectanceColor = { 1.0f, 0.0f, 0.0f };
 	materials[(int)Tri::RED_WALL]->emissionFactor = 0.0f;
 	materials[(int)Tri::RED_WALL]->reflectanceFactor = 1.0f;
+
 	// create a patch for each triangle
 	for (auto tri : _triangles)
 	{
