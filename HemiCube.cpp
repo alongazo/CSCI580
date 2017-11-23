@@ -14,8 +14,8 @@
 HemiCube::HemiCube(int dimension, const std::vector<Triangle> *patchList) : 
 	dx(dimension), dy(dimension), patchList(patchList) 
 {
-	sideWeightTable = new double[dx*dy];
-	topWeightTable = new double[dx*dy];
+	sideWeightTable = new float[dx*dy];
+	topWeightTable = new float[dx*dy];
 
 	FillTables();
 }
@@ -23,14 +23,14 @@ HemiCube::HemiCube(int dimension, const std::vector<Triangle> *patchList) :
 void HemiCube::FillTables()
 {
 	int p;
-	double total = 0;
+	float total = 0;
 	for (int y = 0; y < dy; ++y)
 	{
 		for (int x = 0; x < dx; ++x)
 		{
 			p = ARRAY(x, y);
-			topWeightTable[p] = 1.0 / (PI* pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(y - dy / 2.0, 2), 2));
-			sideWeightTable[p] = (dy - y) / (PI * pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(dy - y, 2), 2));
+			topWeightTable[p] = float(1.0 / (PI* pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(y - dy / 2.0, 2), 2)));
+			sideWeightTable[p] = float((dy - y) / (PI * pow(dx/2.0 + pow(x - dx / 2.0, 2) + pow(dy - y, 2), 2)));
 
 			total += topWeightTable[p] + (4 * sideWeightTable[p]);
 		}
@@ -76,7 +76,7 @@ HemiCube::~HemiCube()
 				Get the form factor based on(x, y) from the top and side tables
 */
 
-double HemiCube::DeltaForm(int px, int py, bool isTop)
+float HemiCube::DeltaForm(int px, int py, bool isTop)
 {
 	if (isTop)
 	{
@@ -122,7 +122,7 @@ Point HemiCube::Rotate(Point p, float degrees, Point about)
 	return result;*/
 }
 
-void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, double> *formMap)
+void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, float> *formMap)
 {
 	Point center = shooter->Center();
 	Point normal = shooter->FaceNormal();
@@ -160,57 +160,47 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		90/*FOV*/
 	};
 
-	MinRender* render = new MinRender(dx, dy);
-	render->GzPutCamera(camera);
-	render->GzBeginRender();
-	render->GzDefault();
+	MinRender render = MinRender(dx, dy);
+	render.GzPutCamera(camera);
+	render.GzBeginRender();
+	render.GzDefault();
 	for (Triangle tri : *patchList)
 	{
-		render->GzPutTriangle(&tri);
+		render.GzPutTriangle(&tri);
 	}
-
-	
-	/*std::string s("Views\\Rend" + std::to_string(shooter->Id));
-	s = s.append("_" + std::to_string(dir));
-	s = s.append(".txt");
-	render->GzFlushToFile(s.c_str());*/
-
 
 	//Calculate DeltaFormFactors
 	int id = -1;
 	GzDepth z;
-	std::multimap<int, double> *deltaMap = new std::multimap<int, double>();
+	std::multimap<int, float> deltaMap = std::multimap<int, float>();
 	for (int p_x = 0; p_x < dx; ++p_x)
 	{
 		for (int p_y = 0; p_y < dy; ++p_y)
 		{
-			render->GzGet(p_x, p_y, &id, &z);
+			render.GzGet(p_x, p_y, &id, &z);
 			{
-				deltaMap->emplace(id, DeltaForm(p_x, p_y, isTop));
+				deltaMap.emplace(id, DeltaForm(p_x, p_y, isTop));
 			}
 		}
 	}
 
 	//Accumulate all the values for output map
-	for (auto it = deltaMap->begin(), end = deltaMap->end(); it != end; it = deltaMap->upper_bound(it->first))
+	for (auto it = deltaMap.begin(), end = deltaMap.end(); it != end; it = deltaMap.upper_bound(it->first))
 	{
-		auto range = deltaMap->equal_range(it->first);
-		double total = std::accumulate(range.first, range.second, 0.0f,
-			[](float x, std::pair<int, double> y) { return x + y.second; });
+		auto range = deltaMap.equal_range(it->first);
+		float total = std::accumulate(range.first, range.second, 0.0f,
+			[](float x, std::pair<int, float> y) { return x + y.second; });
 		formMap->emplace(it->first, total);
 	}
-
-	delete render;
-	delete deltaMap;
 }
 
-void HemiCube::FormFactor(Triangle* shooter, std::map<int, double> *formMap)
+void HemiCube::FormFactor(Triangle* shooter, std::map<int, float> *formMap)
 {
-	std::map<int, double> *upMap = new std::map<int, double>();
-	std::map<int, double> *leftMap = new std::map<int, double>();
-	std::map<int, double> *rightMap = new std::map<int, double>();
-	std::map<int, double> *forwardMap = new std::map<int, double>();
-	std::map<int, double> *backMap = new std::map<int, double>();
+	std::map<int, float> *upMap = new std::map<int, float>();
+	std::map<int, float> *leftMap = new std::map<int, float>();
+	std::map<int, float> *rightMap = new std::map<int, float>();
+	std::map<int, float> *forwardMap = new std::map<int, float>();
+	std::map<int, float> *backMap = new std::map<int, float>();
 
 	Point center = shooter->Center();
 

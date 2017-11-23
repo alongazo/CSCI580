@@ -10,11 +10,11 @@ FormFactorCalculator* FormFactorCalculator::g_instance = nullptr;
 FormFactorCalculator::FormFactorCalculator(std::vector<Triangle> *patchList) : patchList(patchList)
 {
 	hemiCube = new HemiCube(100, patchList);
-	formMap = new std::map<int, std::map<int, double>>();
+	formMap = new std::map<int, std::map<int, float>>();
 }
 FormFactorCalculator::FormFactorCalculator(std::string filePath)
 {
-	formMap = new std::map<int, std::map<int, double>>();
+	formMap = new std::map<int, std::map<int, float>>();
 	hemiCube = NULL;
 	patchList = NULL;
 	LoadForms(filePath);
@@ -23,23 +23,26 @@ FormFactorCalculator::~FormFactorCalculator()
 {
 	if (hemiCube != NULL)
 		delete hemiCube;
-	delete formMap;
+	if(formMap != NULL)
+		delete formMap;
 }
 
 void FormFactorCalculator::CalculateForms()
 {
+	formMap->clear();
+	std::map<int, float> partial; 
 	if (patchList != NULL)
 	{
 		for (auto& tri : *patchList)
 		{
-			std::map<int, double> partial;
+			partial.clear();
 			hemiCube->FormFactor(&tri, &partial);
 			formMap->emplace(tri.Id, partial);
 		}
 	}
 }
 
-double FormFactorCalculator::LookUp(int indexA, int indexB)
+float FormFactorCalculator::LookUp(int indexA, int indexB)
 {
 	auto it = formMap->find(indexA);
 	if (it != formMap->end())
@@ -82,7 +85,7 @@ void FormFactorCalculator::LoadForms(std::string filePath)
 		std::istringstream iss(line);
 		if (iss >> id)
 		{
-			formMap->emplace(id, std::map<int, double>());
+			formMap->emplace(id, std::map<int, float>());
 			while (iss >> id >> value)
 			{
 				(*formMap)[id].emplace(id, value);
