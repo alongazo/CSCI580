@@ -26,12 +26,11 @@ FormFactorCalculator::~FormFactorCalculator()
 void FormFactorCalculator::CalculateForms()
 {
 	formMap.clear();
-	std::map<int, float> partial; 
 	if (patchList != NULL)
 	{
 		for (auto& tri : *patchList)
 		{
-			partial.clear();
+			std::map<int, float> partial;
 			hemiCube->FormFactor(&tri, partial);
 			formMap.emplace(tri.Id, partial);
 		}
@@ -77,14 +76,15 @@ void FormFactorCalculator::LoadForms(std::string filePath)
 	while (std::getline(infile, line))
 	{
 		int id;
-		double value;
 		std::istringstream iss(line);
 		if (iss >> id)
 		{
+			float value;
+			int id2;
 			formMap.emplace(id, std::map<int, float>());
-			while (iss >> id >> value)
+			while (iss >> id2 >> value)
 			{
-				(formMap)[id].emplace(id, value);
+				(formMap)[id].emplace(id2, value);
 			}
 		}
 
