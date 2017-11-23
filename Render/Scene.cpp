@@ -90,7 +90,14 @@ int Scene::load(const std::string& filePath)
 			{
 				tri.type = Tri::LIGHT;
 			}
-
+			else if (strstr(objectType1, "green") != NULL || strstr(objectType2, "green") != NULL)
+			{
+				tri.type = Tri::GREEN_WALL;
+			}
+			else if (strstr(objectType1, "red") != NULL || strstr(objectType2, "red") != NULL)
+			{
+				tri.type = Tri::RED_WALL;
+			}
 			_triangles.push_back(tri);
 		}
 	}
@@ -104,19 +111,21 @@ PatchCollectionPtr Scene::createPatches() const
 	PatchCollectionPtr patches = std::make_shared<PatchCollection>();
 
 	// create standard matrials
-	MaterialPtr materials[4];
+	MaterialPtr materials[6];
 	materials[0] = std::make_shared<Material>();
 	materials[1] = std::make_shared<Material>();
 	materials[2] = std::make_shared<Material>();
 	materials[3] = std::make_shared<Material>();
+	materials[4] = std::make_shared<Material>();
+	materials[5] = std::make_shared<Material>();
 
 	materials[(int)Tri::PLANE]->emissionColor = { 0.1f, 0.1f, 0.1f };
 	materials[(int)Tri::PLANE]->reflectanceColor = { 0.1f, 0.1f, 0.1f };
 	materials[(int)Tri::PLANE]->emissionFactor = 0.f;
 	materials[(int)Tri::PLANE]->reflectanceFactor = 1.0f;
 
-	materials[(int)Tri::CUBE]->emissionColor = { 1.0f, 0.5f, 0.5f };
-	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 0.5f, 0.5f };
+	materials[(int)Tri::CUBE]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::CUBE]->emissionFactor = 15.0f;
 	materials[(int)Tri::CUBE]->reflectanceFactor = 0.95f;
 
@@ -130,6 +139,15 @@ PatchCollectionPtr Scene::createPatches() const
 	materials[(int)Tri::DEFAULT]->emissionFactor = 0.0f;
 	materials[(int)Tri::DEFAULT]->reflectanceFactor = 0.5f;
 
+	materials[(int)Tri::GREEN_WALL]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::GREEN_WALL]->reflectanceColor = { 0.0f, 1.0f, 0.0f };
+	materials[(int)Tri::GREEN_WALL]->emissionFactor = 0.0f;
+	materials[(int)Tri::GREEN_WALL]->reflectanceFactor = 1.0f;
+
+	materials[(int)Tri::RED_WALL]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::RED_WALL]->reflectanceColor = { 1.0f, 0.0f, 0.0f };
+	materials[(int)Tri::RED_WALL]->emissionFactor = 0.0f;
+	materials[(int)Tri::RED_WALL]->reflectanceFactor = 1.0f;
 	// create a patch for each triangle
 	for (auto tri : _triangles)
 	{

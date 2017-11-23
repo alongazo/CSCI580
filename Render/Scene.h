@@ -21,6 +21,7 @@ public:
 	// MEMBER FUNCTIONS
 	int load(const std::string& filePath);
 	PatchCollectionPtr createPatches() const;
+	std::vector<Tri> getTriangleList() { return _triangles; };
 
 private:
 	// MEMBERS

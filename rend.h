@@ -38,6 +38,7 @@ public:
 	Mat4			Xsp;		        /* NDC to screen (pers-to-screen) */
 	Vec3			vPositions[3];
 	Vec3			vNormals[3];
+	Vec3			vColors[3];
 	Vec2			vUVs[3];
 	GzColor		flatcolor;          /* color state for flat shaded triangles */
 	int			interp_mode;
@@ -53,6 +54,7 @@ public:
 	bool			hasPosition;
 	bool			hasNormal;
 	bool			hasUV;
+	bool			hasColor;
 
 	// Constructors
 	GzRender(int xRes, int yRes);
@@ -69,7 +71,7 @@ public:
 
 	// HW2: Render methods
 	int GzPutAttribute(int numAttributes, GzToken *nameList, GzPointer *valueList);
-	int GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList, Vec3 radiosity);
+	int GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList);
 
 	// HW3
 	int GzDefaultCamera();
@@ -106,7 +108,7 @@ private:
 	inline Vec3 compMult(const Vec3& a, const Vec3& b) { return Vec3(a.x * b.x, a.y * b.y, a.z * b.z); }
 
 	// Perform LEE triangle rasterization.
-	int lee(Vec3* positions, Vec3* normals, Vec2* uvs,Vec3 radiosity);
+	int lee(Vec3* positions, Vec3* normals, Vec2* uvs,Vec3* colors);
 
 	// Gouraud shade the triangle.
 	Vec3 gouraudShade(const Vec3& a, const Vec3& b, const Vec3& c,

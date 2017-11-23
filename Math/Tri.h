@@ -16,7 +16,9 @@ struct Tri
 		DEFAULT = 0,
 		PLANE,
 		CUBE,
-		LIGHT
+		LIGHT,
+		RED_WALL,
+		GREEN_WALL
 	};
 
 	VertPtr v0;

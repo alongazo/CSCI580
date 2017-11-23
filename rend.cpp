@@ -436,7 +436,7 @@ int GzRender::GzPutAttribute(int numAttributes, GzToken *nameList, GzPointer *va
 	return result;
 }
 
-int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList, Vec3 radiosity)
+int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueList)
 /* numParts - how many names and values */
 {
 /*
@@ -455,7 +455,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
 			{
-				lee(vPositions, vNormals, vUVs,radiosity);
+				lee(vPositions, vNormals, vUVs,vColors);
 			}
 			break;
 
@@ -465,7 +465,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
 			{
-				lee(vPositions, vNormals, vUVs,radiosity);
+				lee(vPositions, vNormals, vUVs,vColors);
 			}
 			break;
 
@@ -475,10 +475,20 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 
 			if (hasPosition && hasNormal && hasUV)
 			{
-				lee(vPositions, vNormals, vUVs,radiosity);
+				lee(vPositions, vNormals, vUVs,vColors);
 			}
 			break;
+		case GZ_COLORS:
+		{
+			memcpy(vColors, static_cast<Vec3*>(valueList[i]), sizeof(Vec3) * 3);
+			hasColor = true;
 
+			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
+			{
+				lee(vPositions, vNormals, vUVs, vColors);
+			}
+		}
+		break;
 		case GZ_NULL_TOKEN:
 		default:
 			// do nothing
@@ -493,10 +503,10 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 /* Helper Methods                           */
 /********************************************/
 
-int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
+int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3* colors)
 {
-	if (!hasPosition || !hasNormal || (tex_fun != nullptr && !hasUV) || 
-		positions == nullptr || normals == nullptr || (tex_fun != nullptr && uvs == nullptr))
+	if (!hasPosition || !hasNormal || !hasColor || (tex_fun != nullptr && !hasUV) || 
+		positions == nullptr || normals == nullptr || colors == nullptr || (tex_fun != nullptr && uvs == nullptr))
 	{
 		return GZ_FAILURE;
 	}
@@ -505,6 +515,7 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
 	hasPosition = false;
 	hasNormal = false;
 	hasUV = false;
+	hasColor = false;
 
 	// back up original posiiton information
 	Vec3 positionsIS[3];
@@ -531,6 +542,9 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
 	Vec3 an = normals[sortedIdx[0]];
 	Vec3 bn = normals[sortedIdx[1]];
 	Vec3 cn = normals[sortedIdx[2]];
+	Vec3 ac = colors[sortedIdx[0]];
+	Vec3 bc = colors[sortedIdx[1]];
+	Vec3 cc = colors[sortedIdx[2]];
 	Vec2 aUV = uvs[sortedIdx[0]];
 	Vec2 bUV = uvs[sortedIdx[1]];
 	Vec2 cUV = uvs[sortedIdx[2]];
@@ -621,7 +635,17 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
 				if (zNew < zCur)
 				{
 					Vec3 color;
+					Vec3 pos(x, y, z);
+					Vec4 red = interpPlane(Vec3(a.x, a.y, ac.r), Vec3(b.x, b.y, bc.r), Vec3(c.x, c.y, cc.r));
+					Vec4 green = interpPlane(Vec3(a.x, a.y, ac.g), Vec3(b.x, b.y, bc.g), Vec3(c.x, c.y, cc.g));
+					Vec4 blue = interpPlane(Vec3(a.x, a.y, ac.b), Vec3(b.x, b.y, bc.b), Vec3(c.x, c.y, cc.b));
 
+					float rf = -(red.x * pos.x + red.y * pos.y + red.w) / red.z;
+					float gf = -(green.x * pos.x + green.y * pos.y + green.w) / green.z;
+					float bf = -(blue.x * pos.x + blue.y * pos.y + blue.w) / blue.z;
+
+					color = { rf,gf,bf };
+					//color = interpPlane(ac, bc, cc);
 					/*switch (interp_mode)
 					{
 					case GZ_FLAT: // flat 
@@ -637,7 +661,7 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3 radiosity)
 										   planeParamU, planeParamV, Vec3(x, y, z));
 						break;
 					}*/
-					color = radiosity;
+					//color = radiosity;
 					//Vec3 color(shade_func(planeParamA, planeParamB, planeParamC, 
 					//                      planeParamU, planeParamV, Vec2(x, y)));
 					GzPut(x, y, ctoi(weight * color[0]), ctoi(weight * color[1]),
