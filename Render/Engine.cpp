@@ -23,6 +23,36 @@ void Engine::calculateIllumination(int iterations, int raysPerPatch)
 	postProcess();
 }
 
+float Engine::averageFormFactorValue() const
+{
+	float total = 0.f;
+	int count = 0;
+	for (auto pair : _patchToVisiblePatchFormFactors)
+	{
+		for (auto pair2 : *pair.second)
+		{
+			total += pair2.second;
+			++count;
+		}
+	}
+
+	return total / count;
+}
+
+Vec3 Engine::averageColor() const
+{
+	Vec3 color;
+	int count = 0;
+	for (auto vertex : _patches->vertices())
+	{
+		color += vertex->color;
+		++count;
+	}
+
+	return color / count;
+
+}
+
 // HELPER FUNCTIONS
 void Engine::initialize()
 {

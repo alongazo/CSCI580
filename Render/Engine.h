@@ -31,6 +31,8 @@ public:
 	void setScene(const ScenePtr& scene);
 	void calculateIllumination(int iterations, int raysPerPatch);
 	void renderScene(GzRender* renderer);
+	float averageFormFactorValue() const;
+	Vec3 averageColor() const;
 
 private:
 	// HELPER FUNCTIONS

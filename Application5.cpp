@@ -203,9 +203,9 @@ int Application5::Initialize()
 	// prepare engine
 	engine = std::make_shared<Engine>();
 	engine->setScene(scene);
-	engine->calculateIllumination(1, 200);
-
-	int doTheThing = 0;
+	engine->calculateIllumination(10, 10);
+	float average = engine->averageFormFactorValue();
+	Vec3 color = engine->averageColor();
 //
 //	//Calculate/Load Form Factors
 //	FILE *forminfile;
