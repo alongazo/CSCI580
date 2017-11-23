@@ -255,15 +255,33 @@ int Application5::Initialize()
 			Vec3 r = { 0.01f,0.01f,0.01f };
 			if (strstr(objectType1,"pPlane") !=NULL|| strstr(objectType2, "pPlane")!=NULL)
 			{
-				p = { 0.1f,0.1f,0.1f };
+				p = { 1.0f,1.0f,1.0f };
 				e = { 0.1f,0.1f,0.1f };
-				r = { 0.01f,0.01f,0.01f };
+				r = { 0.1f,0.1f,0.1f };
 			}
 			else if (strstr(objectType1, "pCube")!=NULL || strstr(objectType2, "pCube") !=NULL)
 			{
-				p = { .5f,0.1f,0.1f };
-				e = { .5f,0.1f,0.1f };
-				r = { 0.01f,0.01f,0.01f };
+				p = { 1.0f,1.0f,1.0f };
+				e = { 0.1f,0.1f,0.1f };
+				r = { 0.1f,0.1f,0.1f };
+			}
+			else if (strstr(objectType1, "light") != NULL || strstr(objectType2, "light") != NULL)
+			{
+				p = { 0.0f,0.0f,0.0f };
+				e = { 10.0f,10.0f,10.0f };
+				r = { 1.0f,1.0f,1.0f };
+			}
+			else if (strstr(objectType1, "green") != NULL || strstr(objectType2, "green") != NULL)
+			{
+				p = { 0.0f,1.0f,0.0f };
+				e = { 0.1f,0.1f,0.1f };
+				r = { 0.1f,0.1f,0.1f };
+			}
+			else if (strstr(objectType1, "red") != NULL || strstr(objectType2, "red") != NULL)
+			{
+				p = { 1.0f,0.0f,0.0f };
+				e = { 0.1f,0.1f,0.1f };
+				r = { 0.1f,0.1f,0.1f };
 			}
 			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
 			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
