@@ -133,10 +133,10 @@
     <ClInclude Include="minRend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HemiCube.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="Shooting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HemiCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
