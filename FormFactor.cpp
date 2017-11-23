@@ -7,7 +7,7 @@
 
 FormFactorCalculator* FormFactorCalculator::g_instance = nullptr;
 
-FormFactorCalculator::FormFactorCalculator(const std::vector<Triangle> *patchList) : patchList(patchList)
+FormFactorCalculator::FormFactorCalculator(std::vector<Triangle> *patchList) : patchList(patchList)
 {
 	hemiCube = new HemiCube(100, patchList);
 	formMap = new std::map<int, std::map<int, double>>();
@@ -30,7 +30,7 @@ void FormFactorCalculator::CalculateForms()
 {
 	if (patchList != NULL)
 	{
-		for (auto tri : *patchList)
+		for (auto& tri : *patchList)
 		{
 			std::map<int, double> partial;
 			hemiCube->FormFactor(&tri, &partial);

@@ -15,14 +15,10 @@
 class FormFactorCalculator {
 public:
 	// Singleton accessor
-	static void init(const std::vector<Triangle> *triList);
+	static void init(std::vector<Triangle> *triList);
 	static void init(const std::string filePath);
 	static FormFactorCalculator* inst();
 	static void destroy();
-
-	FormFactorCalculator() {};
-	FormFactorCalculator(const std::vector<Triangle> *triList);
-	FormFactorCalculator(std::string filePath);
 	~FormFactorCalculator();
 
 	void CalculateForms();
@@ -33,13 +29,18 @@ public:
 private:
 	static FormFactorCalculator* g_instance;
 
+	// not allowed to manually create form factor calculators, must use singleton
+	FormFactorCalculator() {};
+	FormFactorCalculator(std::vector<Triangle> *triList);
+	FormFactorCalculator(std::string filePath);
+
 	HemiCube *hemiCube;
-	const std::vector<Triangle> *patchList;
+	std::vector<Triangle> *patchList;
 	std::map<int, std::map<int, double>> *formMap;
 };
 
 inline
-void FormFactorCalculator::init(const std::vector<Triangle> *triList)
+void FormFactorCalculator::init(std::vector<Triangle> *triList)
 {
 	g_instance = new FormFactorCalculator(triList);
 }

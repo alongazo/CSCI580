@@ -200,7 +200,8 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		formMap->emplace(it->first, total);
 	}
 
-	delete render, deltaMap;
+	delete render;
+	delete deltaMap;
 }
 
 void HemiCube::FormFactor(Triangle* shooter, std::map<int, double> *formMap)
@@ -226,5 +227,9 @@ void HemiCube::FormFactor(Triangle* shooter, std::map<int, double> *formMap)
 	for (auto it = forwardMap->begin(); it != forwardMap->end(); ++it) (*formMap)[it->first] += it->second;
 	for (auto it = backMap->begin(); it != backMap->end(); ++it) (*formMap)[it->first] += it->second;
 
-	delete upMap, leftMap, rightMap, forwardMap, backMap;
+	delete upMap;
+	delete leftMap;
+	delete rightMap;
+	delete forwardMap;
+	delete backMap;
 }
