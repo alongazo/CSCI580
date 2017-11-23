@@ -9,11 +9,15 @@
 #include "stdafx.h"
 #include "CS580HW.h"
 #include "Application5.h"
-#include "Triangle.h"
 #include "FormFactor.h"
 #include "Gz.h"
 #include "rend.h"
+#include "Patch/PatchCollection.h"
+#include "Render/Engine.h"
+#include "Render/Scene.h"
 #include "Shooting.h"
+#include "Triangle.h"
+#include "Math/Tri.h"
 #include <iostream>
 #include <string>
 
@@ -34,8 +38,12 @@ extern int GzFreeTexture();
 extern FormFactorCalculator g_instance;
 
 void shade(GzCoord norm, GzCoord color);
-static 	std::vector<Triangle> triangleList;
+static 	std::vector<Tri> triangleList;
 static Shooting::EmissionQueue emissionList;
+
+// RADIOSITY
+EnginePtr engine;
+
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -189,6 +197,7 @@ int Application5::Initialize()
 	char objectType2[64];
 	bool datavalid = false;
 
+/*<<<<<<< HEAD
 	//Initialize vertex, normal, and uv lists
 	for (int i = 0; i < MAX_VERTICES; i++)
 	{
@@ -200,7 +209,7 @@ int Application5::Initialize()
 				allUVList[i][j] = (float)MININT;
 		}
 	}
-	while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
+	while (fscanf(infile, "%s", dummy) == 1) { 	// read in tri word 
 												//vertexList[0][0] = (float)MININT;
 		if (strcmp(dummy, "v") == 0)
 		{
@@ -305,7 +314,7 @@ int Application5::Initialize()
 	{
 		/*FormFactorCalculator formFactors(&triangleList);
 		formFactors.CalculateForms();
-		formFactors.SaveForms(FORMFILE);*/
+		formFactors.SaveForms(FORMFILE);
 		FormFactorCalculator::init(&triangleList);
 		FormFactorCalculator::inst()->CalculateForms();
 		FormFactorCalculator::inst()->SaveForms(FORMFILE);
@@ -319,7 +328,7 @@ int Application5::Initialize()
 	Shooting::Perform(emissionList, triangleList);
 	/*
 	* Tokens associated with light parameters
-	*/
+	
 	nameListLights[0] = GZ_DIRECTIONAL_LIGHT;
 	valueListLights[0] = (GzPointer)&light1;
 	nameListLights[1] = GZ_DIRECTIONAL_LIGHT;
@@ -334,16 +343,16 @@ int Application5::Initialize()
 
 	/*
 	* Tokens associated with shading
-	*/
+	
 	nameListShader[0] = GZ_DIFFUSE_COEFFICIENT;
 	valueListShader[0] = (GzPointer)diffuseCoefficient;
 
 	/*
 	* Select either GZ_COLOR or GZ_NORMALS as interpolation mode
-	*/
+	
 	nameListShader[1] = GZ_INTERPOLATE;
-	//interpStyle = GZ_COLOR;         /* Gouraud shading */
-	interpStyle = GZ_NORMALS;         /* Phong shading */
+	//interpStyle = GZ_COLOR;         // Gouraud shading 
+	interpStyle = GZ_NORMALS;         // Phong shading 
 	valueListShader[1] = (GzPointer)&interpStyle;
 
 	nameListShader[2] = GZ_AMBIENT_COEFFICIENT;
@@ -354,35 +363,114 @@ int Application5::Initialize()
 	specpower = 32;
 	valueListShader[4] = (GzPointer)&specpower;
 	//nameListShader[5] = GZ_TEXTURE_MAP;
-#if 0   /* set up null texture function or valid pointer */
+#if 0   // set up null texture function or valid pointer 
 	valueListShader[5] = (GzPointer)0;
 #else
-	//valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
+	//valueListShader[5] = (GzPointer)(tex_fun);	// or use ptex_fun 
 #endif
 	status |= m_pRender->GzPutAttribute(5, nameListShader, valueListShader);
+=======*/
+	// load scene
+	ScenePtr scene = std::make_shared<Scene>();
+	scene->load(INFILE);
+//>>>>>>> origin/HEAD
 
+	// prepare engine
+	engine = std::make_shared<Engine>();
+	engine->setScene(scene);
+	engine->calculateIllumination(1, 200);
+	for (Tri t : scene->getTriangleList())
+	{
+		triangleList.push_back(t);
+	}
 
-	//status |= m_pRender->GzPushMatrix(scale);  
-	//status |= m_pRender->GzPushMatrix(rotateY); 
-	//status |= m_pRender->GzPushMatrix(rotateX);
-	
-	//if (fclose(forminfile))
-	//	AfxMessageBox(_T("The input file was not closed\n"));
-
-	if (status) exit(GZ_FAILURE);
-
-	if (status)
-		return(GZ_FAILURE);
-	else
-		return(GZ_SUCCESS);
+	int doTheThing = 0;
+//
+//	//Calculate/Load Form Factors
+//	FILE *forminfile;
+//	if ((forminfile = fopen(FORMFILE, "r")) == NULL)
+//	{
+//		/*FormFactorCalculator formFactors(&triangleList);
+//		formFactors.CalculateForms();
+//		formFactors.SaveForms(FORMFILE);*/
+//		FormFactorCalculator::init(&triangleList);
+//		FormFactorCalculator::inst()->CalculateForms();
+//		FormFactorCalculator::inst()->SaveForms(FORMFILE);
+//	}
+//	else
+//	{
+//		fclose(forminfile);
+//		FormFactorCalculator::init(FORMFILE);
+//	}
+//
+//	Shooting::Perform(emissionList, triangleList);
+//	/*
+//	* Tokens associated with light parameters
+//	*/
+//	nameListLights[0] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[0] = (GzPointer)&light1;
+//	nameListLights[1] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[1] = (GzPointer)&light2;
+//	nameListLights[2] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[2] = (GzPointer)&light3;
+//	status |= m_pRender->GzPutAttribute(3, nameListLights, valueListLights);
+//
+//	nameListLights[0] = GZ_AMBIENT_LIGHT;
+//	valueListLights[0] = (GzPointer)&ambientlight;
+//	status |= m_pRender->GzPutAttribute(1, nameListLights, valueListLights);
+//
+//	/*
+//	* Tokens associated with shading
+//	*/
+//	nameListShader[0] = GZ_DIFFUSE_COEFFICIENT;
+//	valueListShader[0] = (GzPointer)diffuseCoefficient;
+//
+//	/*
+//	* Select either GZ_COLOR or GZ_NORMALS as interpolation mode
+//	*/
+//	nameListShader[1] = GZ_INTERPOLATE;
+//	//interpStyle = GZ_COLOR;         /* Gouraud shading */
+//	interpStyle = GZ_NORMALS;         /* Phong shading */
+//	valueListShader[1] = (GzPointer)&interpStyle;
+//
+//	nameListShader[2] = GZ_AMBIENT_COEFFICIENT;
+//	valueListShader[2] = (GzPointer)ambientCoefficient;
+//	nameListShader[3] = GZ_SPECULAR_COEFFICIENT;
+//	valueListShader[3] = (GzPointer)specularCoefficient;
+//	nameListShader[4] = GZ_DISTRIBUTION_COEFFICIENT;
+//	specpower = 32;
+//	valueListShader[4] = (GzPointer)&specpower;
+//	//nameListShader[5] = GZ_TEXTURE_MAP;
+//#if 0   /* set up null texture function or valid pointer */
+//	valueListShader[5] = (GzPointer)0;
+//#else
+//	//valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
+//#endif
+//	status |= m_pRender->GzPutAttribute(5, nameListShader, valueListShader);
+//
+//
+//	//status |= m_pRender->GzPushMatrix(scale);  
+//	//status |= m_pRender->GzPushMatrix(rotateY); 
+//	//status |= m_pRender->GzPushMatrix(rotateX);
+//	
+//	//if (fclose(forminfile))
+//	//	AfxMessageBox(_T("The input file was not closed\n"));
+//
+//	if (status) exit(GZ_FAILURE);
+//
+//	if (status)
+//		return(GZ_FAILURE);
+//	else
+//		return(GZ_SUCCESS);
 }
 
 int Application5::Render()
 {
-	GzToken		nameListTriangle[3]; 	/* vertex attribute names */
-	GzPointer	valueListTriangle[3]; 	/* vertex attribute pointers */
+	GzToken		nameListTriangle[4]; 	/* vertex attribute names */
+	GzPointer	valueListTriangle[4]; 	/* vertex attribute pointers */
 	GzCoord		vertexList[3];	/* vertex position coordinates */
 	GzCoord		normalList[3];	/* vertex normals */
+	GzColor		colorList[3];
 	GzCoord		allVertexList[MAX_VERTICES];
 	GzCoord		allNormalList[MAX_VERTICES];
 	GzTextureIndex		allUVList[MAX_VERTICES];
@@ -399,6 +487,7 @@ int Application5::Render()
 	nameListTriangle[0] = GZ_POSITION;
 	nameListTriangle[1] = GZ_NORMAL;
 	nameListTriangle[2] = GZ_TEXTURE_INDEX;
+	nameListTriangle[3] = GZ_COLORS;
 
 	// I/O File open
 	FILE *infile;
@@ -448,45 +537,62 @@ int Application5::Render()
 
 
 		// render each triangle
-		for (Triangle t : triangleList)
+		for (Tri t : triangleList)
 		{
-			vertexList[0][0] = t.A.x;
-			vertexList[0][1] = t.A.y;
-			vertexList[0][2] = t.A.z;
+			vertexList[0][0] = t.v0->position[0];
+			vertexList[0][1] = t.v0->position[1];
+			vertexList[0][2] = t.v0->position[2];
 
-			vertexList[1][0] = t.B.x;
-			vertexList[1][1] = t.B.y;
-			vertexList[1][2] = t.B.z;
+			vertexList[1][0] = t.v1->position[0];
+			vertexList[1][1] = t.v1->position[1];
+			vertexList[1][2] = t.v1->position[2];
 
-			vertexList[2][0] = t.C.x;
-			vertexList[2][1] = t.C.y;
-			vertexList[2][2] = t.C.z;
+			vertexList[2][0] = t.v2->position[0];
+			vertexList[2][1] = t.v2->position[1];
+			vertexList[2][2] = t.v2->position[2];
 
-			uvList[0][0] = t.A.u;
-			uvList[0][1] = t.A.v;
+			uvList[0][0] = 0;// t.A.u;
+			uvList[0][1] = 0;// t.A.v;
 
-			uvList[1][0] = t.B.u;
-			uvList[1][1] = t.B.v;
+			uvList[1][0] = 0;// t.B.u;
+			uvList[1][1] = 0;// t.B.v;
 
-			uvList[2][0] = t.C.u;
-			uvList[2][1] = t.C.v;
+			uvList[2][0] = 0;// t.C.u;
+			uvList[2][1] = 0;// t.C.v;
 
-			normalList[0][0] = t.A.Normal.x;
-			normalList[0][1] = t.A.Normal.y;
-			normalList[0][2] = t.A.Normal.z;
+			normalList[0][0] = t.v0->normal[0];
+			normalList[0][1] = t.v0->normal[1];
+			normalList[0][2] = t.v0->normal[2];
 
-			normalList[1][0] = t.B.Normal.x;
-			normalList[1][1] = t.B.Normal.y;
-			normalList[1][2] = t.B.Normal.z;
+			normalList[1][0] = t.v1->normal[0];
+			normalList[1][1] = t.v1->normal[1];
+			normalList[1][2] = t.v1->normal[2];
 
-			normalList[2][0] = t.C.Normal.x;
-			normalList[2][1] = t.C.Normal.y;
-			normalList[2][2] = t.C.Normal.z;
+			normalList[2][0] = t.v2->normal[0];
+			normalList[2][1] = t.v2->normal[1];
+			normalList[2][2] = t.v2->normal[2];
 
+			clamp(t.v0->color,0,1);
+			clamp(t.v1->color, 0, 1);
+			clamp(t.v2->color, 0, 1);
+			colorList[0][0] = t.v0->color[0];
+			colorList[0][1] = t.v0->color[1];
+			colorList[0][2] = t.v0->color[2];
+
+			colorList[1][0] = t.v1->color[0];
+			colorList[1][1] = t.v1->color[1];
+			colorList[1][2] = t.v1->color[2];
+
+			colorList[2][0] = t.v2->color[0];
+			colorList[2][1] = t.v2->color[1];
+			colorList[2][2] = t.v2->color[2];
+
+			
 			valueListTriangle[0] = (GzPointer)vertexList;
 			valueListTriangle[1] = (GzPointer)normalList;
 			valueListTriangle[2] = (GzPointer)uvList;
-			m_pRender->GzPutTriangle(3, nameListTriangle, valueListTriangle,t.radiosity);
+			valueListTriangle[3] = (GzPointer)colorList;
+			m_pRender->GzPutTriangle(4, nameListTriangle, valueListTriangle);
 		}
 		// copy weighted colors to tmp AA buffer
 		for (int i = 0; i < m_nWidth; ++i)

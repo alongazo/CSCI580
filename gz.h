@@ -17,6 +17,7 @@
 #define GZ_POSITION				1
 #define GZ_NORMAL				2
 #define GZ_TEXTURE_INDEX		3
+#define GZ_COLORS				4
 
 
 #define	GZ_AASHIFTX				44	/* antialiasing screen offset */

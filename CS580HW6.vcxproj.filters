@@ -13,6 +13,15 @@
       <UniqueIdentifier>{273f0170-6b40-4c55-973d-3889257ba148}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Patch">
+      <UniqueIdentifier>{0bdc56ac-1512-4468-86e2-92f7212ccc9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{0fd33c1c-4b08-4623-b6ac-2eb9d24752ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{48c0df4a-10a5-4696-be5f-aea2882ba705}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp">
@@ -68,6 +77,42 @@
     </ClCompile>
     <ClCompile Include="Shooting.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patch\Patch.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="math\RNG.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Patch\Hemisphere.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="Patch\PatchCollection.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="Patch\Material.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\Engine.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\Scene.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Tri.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Vert.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Ray.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\RayIntersection.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\RayTracer.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +184,42 @@
     <ClInclude Include="HemiCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="patch\Patch.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="math\RNG.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Patch\Hemisphere.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="Patch\PatchCollection.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="Patch\Material.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\Engine.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\Scene.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Tri.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Vert.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Ray.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RayIntersection.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RayTracer.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\CS580HW.ico">
@@ -161,5 +242,10 @@
     <CustomBuild Include="res\CS580HW.rc2">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Application5.cpp.backup">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
