@@ -34,9 +34,9 @@ private:
 	FormFactorCalculator(std::vector<Triangle> *triList);
 	FormFactorCalculator(std::string filePath);
 
-	HemiCube *hemiCube;
-	std::vector<Triangle> *patchList;
-	std::map<int, std::map<int, float>> *formMap;
+	HemiCube* hemiCube;
+	std::vector<Triangle>* patchList;
+	std::map<int, std::map<int, float>> formMap;
 };
 
 inline

@@ -122,7 +122,7 @@ Point HemiCube::Rotate(Point p, float degrees, Point about)
 	return result;*/
 }
 
-void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, float> *formMap)
+void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, float> &formMap)
 {
 	Point center = shooter->Center();
 	Point normal = shooter->FaceNormal();
@@ -190,17 +190,17 @@ void HemiCube::CalculateView(Triangle* shooter, Direction dir, bool isTop, std::
 		auto range = deltaMap.equal_range(it->first);
 		float total = std::accumulate(range.first, range.second, 0.0f,
 			[](float x, std::pair<int, float> y) { return x + y.second; });
-		formMap->emplace(it->first, total);
+		formMap.emplace(it->first, total);
 	}
 }
 
-void HemiCube::FormFactor(Triangle* shooter, std::map<int, float> *formMap)
+void HemiCube::FormFactor(Triangle* shooter, std::map<int, float> &formMap)
 {
-	std::map<int, float> *upMap = new std::map<int, float>();
-	std::map<int, float> *leftMap = new std::map<int, float>();
-	std::map<int, float> *rightMap = new std::map<int, float>();
-	std::map<int, float> *forwardMap = new std::map<int, float>();
-	std::map<int, float> *backMap = new std::map<int, float>();
+	std::map<int, float> upMap;
+	std::map<int, float> leftMap;
+	std::map<int, float> rightMap;
+	std::map<int, float> forwardMap;
+	std::map<int, float> backMap;
 
 	Point center = shooter->Center();
 
@@ -211,15 +211,9 @@ void HemiCube::FormFactor(Triangle* shooter, std::map<int, float> *formMap)
 	CalculateView(shooter, Direction::BACK, false, backMap);
 
 	//Sum all delta formfactors foreach view
-	for (auto it = upMap->begin(); it != upMap->end(); ++it) (*formMap)[it->first] += it->second;
-	for (auto it = leftMap->begin(); it != leftMap->end(); ++it) (*formMap)[it->first] += it->second;
-	for (auto it = rightMap->begin(); it != rightMap->end(); ++it) (*formMap)[it->first] += it->second;
-	for (auto it = forwardMap->begin(); it != forwardMap->end(); ++it) (*formMap)[it->first] += it->second;
-	for (auto it = backMap->begin(); it != backMap->end(); ++it) (*formMap)[it->first] += it->second;
-
-	delete upMap;
-	delete leftMap;
-	delete rightMap;
-	delete forwardMap;
-	delete backMap;
+	for (auto it = upMap.begin(); it != upMap.end(); ++it) (formMap)[it->first] += it->second;
+	for (auto it = leftMap.begin(); it != leftMap.end(); ++it) (formMap)[it->first] += it->second;
+	for (auto it = rightMap.begin(); it != rightMap.end(); ++it) (formMap)[it->first] += it->second;
+	for (auto it = forwardMap.begin(); it != forwardMap.end(); ++it) (formMap)[it->first] += it->second;
+	for (auto it = backMap.begin(); it != backMap.end(); ++it) (formMap)[it->first] += it->second;
 }
