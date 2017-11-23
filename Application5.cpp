@@ -15,6 +15,7 @@
 #include "rend.h"
 #include "Shooting.h"
 #include <iostream>
+#include <string>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -24,8 +25,7 @@ static char THIS_FILE[] = __FILE__;
 
 #define INFILE  "radiosityTestScene2.obj"
 #define OUTFILE "output.ppm"
-#define FORMINFILE "formFactors.txt"
-#define FORMOUTFILE "formFactors.txt"
+#define FORMFILE "formFactors.txt"
 #define MAX_VERTICES 10000
 
 extern int tex_fun(float u, float v, GzColor color); /* image texture function */
@@ -185,7 +185,10 @@ int Application5::Initialize()
 	int currentUV = 0;
 	int currentNormal = 0;
 	int currentTriangle = 0;
+	char objectType1[64];
+	char objectType2[64];
 	bool datavalid = false;
+
 	//Initialize vertex, normal, and uv lists
 	for (int i = 0; i < MAX_VERTICES; i++)
 	{
@@ -216,6 +219,14 @@ int Application5::Initialize()
 			currentNormal++;
 
 		}
+		if (strcmp(dummy, "g") == 0)
+		{
+			fscanf(infile, "%s", &objectType1);
+			if (strcmp(objectType1, "default") != 0)
+			{
+				fscanf(infile, "%s", &objectType2);
+			}
+		}
 		if (strcmp(dummy, "f") == 0)
 		{
 			int vertexIndex1;
@@ -239,12 +250,24 @@ int Application5::Initialize()
 			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], -allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
 			Vertex c = Vertex(allVertexList[vertexIndex3 - 1][0], allVertexList[vertexIndex3 - 1][1], -allVertexList[vertexIndex3 - 1][2], n3, allUVList[uvIndex3 - 1][0], allUVList[uvIndex3 - 1][1]);
 			Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
-
-			
-			GzColor p = { 0.5f,0.5f,0.5f };
-			GzColor e = { 0.5f,0.5f,0.5f };
+			Vec3 p = { 0.01f,0.01f,0.01f };
+			Vec3 e = { 0.01f,0.01f,0.01f };
+			Vec3 r = { 0.01f,0.01f,0.01f };
+			if (strstr(objectType1,"pPlane") !=NULL|| strstr(objectType2, "pPlane")!=NULL)
+			{
+				p = { 0.1f,0.1f,0.1f };
+				e = { 0.1f,0.1f,0.1f };
+				r = { 0.01f,0.01f,0.01f };
+			}
+			else if (strstr(objectType1, "pCube")!=NULL || strstr(objectType2, "pCube") !=NULL)
+			{
+				p = { .5f,0.1f,0.1f };
+				e = { .5f,0.1f,0.1f };
+				r = { 0.01f,0.01f,0.01f };
+			}
 			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
 			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
+			newTriangle.radiosity[0] = r[0], newTriangle.radiosity[1] = r[1], newTriangle.radiosity[2] = r[2];
 			
 
 			triangleList.push_back(newTriangle);
@@ -260,16 +283,19 @@ int Application5::Initialize()
 
 	//Calculate/Load Form Factors
 	FILE *forminfile;
-	if ((forminfile = fopen(FORMINFILE, "r")) == NULL)
+	if ((forminfile = fopen(FORMFILE, "r")) == NULL)
 	{
+		/*FormFactorCalculator formFactors(&triangleList);
+		formFactors.CalculateForms();
+		formFactors.SaveForms(FORMFILE);*/
 		FormFactorCalculator::init(&triangleList);
 		FormFactorCalculator::inst()->CalculateForms();
-		FormFactorCalculator::inst()->SaveForms(FORMOUTFILE);
+		FormFactorCalculator::inst()->SaveForms(FORMFILE);
 	}
 	else
 	{
 		fclose(forminfile);
-		FormFactorCalculator::init(FORMINFILE);
+		FormFactorCalculator::init(FORMFILE);
 	}
 
 	Shooting::Perform(emissionList, triangleList);
