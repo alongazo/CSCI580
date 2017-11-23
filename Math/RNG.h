@@ -41,35 +41,36 @@ struct RNG
 	/**
 	* The ranom number generator used by the game.
 	*/
-	static std::minstd_rand0 g_RNG;
+	static std::default_random_engine g_RNG;
+	static std::uniform_real_distribution<float> g_ContinuousDist;
+	static std::uniform_int_distribution<unsigned int> g_DiscreteDist;
 };
 
 
 inline
 unsigned int RNG::randDiscrete()
 {
-	return (g_RNG() - g_RNG.min());
+	return g_DiscreteDist(g_RNG);
 }
 
 inline
 unsigned int RNG::randDiscrete(unsigned int minVal, unsigned int maxVal)
 {
-	return ((g_RNG() - g_RNG.min()) % (maxVal - minVal)) + minVal;
+	std::uniform_int_distribution<unsigned int> dist(minVal, maxVal);
+	return dist(g_RNG);
 }
 
 inline
 float RNG::randContinuous()
 {
-	return static_cast<float>(g_RNG() - g_RNG.min()) /
-		static_cast<float>(g_RNG.max() - g_RNG.min());
+	return g_ContinuousDist(g_RNG);
 }
 
 inline
 float RNG::randContinuous(float minVal, float maxVal)
 {
-	return (static_cast<float>(g_RNG() - g_RNG.min()) /
-		static_cast<float>(g_RNG.max() - g_RNG.min())) *
-		(maxVal - minVal) + minVal;
+	std::uniform_real_distribution<float> dist(minVal, maxVal);
+	return dist(g_RNG);
 }
 
 // hot-fix for compilation issues
