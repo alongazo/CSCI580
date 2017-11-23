@@ -57,14 +57,28 @@ inline
 const VertPtr& PatchCollection::vertexById(int id) const
 {
 	auto res = _vertices.find(id);
-	return (res != _vertices.end()) ? res->second : nullptr;
+	if (res != _vertices.end())
+	{
+		return res->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 inline
 const PatchPtr& PatchCollection::patchById(int id) const
 {
 	auto res = _patches.find(id);
-	return (res != _patches.end()) ? res->second : nullptr;
+	if (res != _patches.end())
+	{
+		return res->second;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 #endif

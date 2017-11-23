@@ -9,11 +9,14 @@
 #include "stdafx.h"
 #include "CS580HW.h"
 #include "Application5.h"
-#include "Triangle.h"
 #include "FormFactor.h"
 #include "Gz.h"
 #include "rend.h"
+#include "Patch/PatchCollection.h"
+#include "Render/Engine.h"
+#include "Render/Scene.h"
 #include "Shooting.h"
+#include "Triangle.h"
 #include <iostream>
 #include <string>
 
@@ -36,6 +39,10 @@ extern FormFactorCalculator g_instance;
 void shade(GzCoord norm, GzCoord color);
 static 	std::vector<Triangle> triangleList;
 static Shooting::EmissionQueue emissionList;
+
+// RADIOSITY
+EnginePtr engine;
+
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -189,174 +196,93 @@ int Application5::Initialize()
 	char objectType2[64];
 	bool datavalid = false;
 
-	//Initialize vertex, normal, and uv lists
-	for (int i = 0; i < MAX_VERTICES; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			allVertexList[i][j] = (float)MININT;
-			allNormalList[i][j] = (float)MININT;
-			if (j < 2)
-				allUVList[i][j] = (float)MININT;
-		}
-	}
-	while (fscanf(infile, "%s", dummy) == 1) { 	/* read in tri word */
-												//vertexList[0][0] = (float)MININT;
-		if (strcmp(dummy, "v") == 0)
-		{
-			fscanf(infile, "%f %f %f", &allVertexList[currentVertex][0], &allVertexList[currentVertex][1], &allVertexList[currentVertex][2]);
-			currentVertex++;
-		}
-		if (strcmp(dummy, "vt") == 0)
-		{
-			fscanf(infile, "%f %f", &allUVList[currentUV][0], &allUVList[currentUV][1], &allUVList[currentUV][2]);
-			currentUV++;
+	// load scene
+	ScenePtr scene = std::make_shared<Scene>();
+	scene->load(INFILE);
 
-		}
-		if (strcmp(dummy, "vn") == 0)
-		{
-			fscanf(infile, "%f %f %f", &allNormalList[currentNormal][0], &allNormalList[currentNormal][1], &allNormalList[currentNormal][2]);
-			currentNormal++;
+	// prepare engine
+	engine = std::make_shared<Engine>();
+	engine->setScene(scene);
+	engine->calculateIllumination(1, 200);
 
-		}
-		if (strcmp(dummy, "g") == 0)
-		{
-			fscanf(infile, "%s", &objectType1);
-			if (strcmp(objectType1, "default") != 0)
-			{
-				fscanf(infile, "%s", &objectType2);
-			}
-		}
-		if (strcmp(dummy, "f") == 0)
-		{
-			int vertexIndex1;
-			int uvIndex1;
-			int normalIndex1;
-
-			int vertexIndex2;
-			int uvIndex2;
-			int normalIndex2;
-
-			int vertexIndex3;
-			int uvIndex3;
-			int normalIndex3;
-			fscanf(infile, "%d/%d/%d %d/%d/%d %d/%d/%d", &vertexIndex1, &uvIndex1, &normalIndex1, &vertexIndex2, &uvIndex2, &normalIndex2, &vertexIndex3, &uvIndex3, &normalIndex3);
-			//GzCoord newVertex = { allVertexList[vertexIndex1][0] ,allVertexList[vertexIndex1][1] ,allVertexList[vertexIndex1][2] };
-			Point n1 = Point(allNormalList[normalIndex1 - 1][0], allNormalList[normalIndex1 - 1][1], -allNormalList[normalIndex1 - 1][2]);
-			Point n2 = Point(allNormalList[normalIndex2 - 1][0], allNormalList[normalIndex2 - 1][1], -allNormalList[normalIndex2 - 1][2]);
-			Point n3 = Point(allNormalList[normalIndex3 - 1][0], allNormalList[normalIndex3 - 1][1], -allNormalList[normalIndex3 - 1][2]);
-
-			Vertex a = Vertex(allVertexList[vertexIndex1 - 1][0], allVertexList[vertexIndex1 - 1][1], -allVertexList[vertexIndex1 - 1][2], n1, allUVList[uvIndex1 - 1][0], allUVList[uvIndex1 - 1][1]);
-			Vertex b = Vertex(allVertexList[vertexIndex2 - 1][0], allVertexList[vertexIndex2 - 1][1], -allVertexList[vertexIndex2 - 1][2], n2, allUVList[uvIndex2 - 1][0], allUVList[uvIndex2 - 1][1]);
-			Vertex c = Vertex(allVertexList[vertexIndex3 - 1][0], allVertexList[vertexIndex3 - 1][1], -allVertexList[vertexIndex3 - 1][2], n3, allUVList[uvIndex3 - 1][0], allUVList[uvIndex3 - 1][1]);
-			Triangle newTriangle = Triangle(a, b, c, currentTriangle++);
-			Vec3 p = { 0.01f,0.01f,0.01f };
-			Vec3 e = { 0.01f,0.01f,0.01f };
-			Vec3 r = { 0.01f,0.01f,0.01f };
-			if (strstr(objectType1,"pPlane") !=NULL|| strstr(objectType2, "pPlane")!=NULL)
-			{
-				p = { 0.1f,0.1f,0.1f };
-				e = { 0.1f,0.1f,0.1f };
-				r = { 0.01f,0.01f,0.01f };
-			}
-			else if (strstr(objectType1, "pCube")!=NULL || strstr(objectType2, "pCube") !=NULL)
-			{
-				p = { .5f,0.1f,0.1f };
-				e = { .5f,0.1f,0.1f };
-				r = { 0.01f,0.01f,0.01f };
-			}
-			newTriangle.reflectance[0] = p[0], newTriangle.reflectance[1] = p[1], newTriangle.reflectance[2] = p[2];
-			newTriangle.emission[0] = e[0], newTriangle.emission[1] = e[1], newTriangle.emission[2] = e[2];
-			newTriangle.radiosity[0] = r[0], newTriangle.radiosity[1] = r[1], newTriangle.radiosity[2] = r[2];
-			
-
-			triangleList.push_back(newTriangle);
-			emissionList.push(newTriangle);
-		}
-
-	}
-	if (fclose(infile))
-		AfxMessageBox(_T("The input file was not closed\n"));
-
-	if (fclose(outfile))
-		AfxMessageBox(_T("The output file was not closed\n"));
-
-	//Calculate/Load Form Factors
-	FILE *forminfile;
-	if ((forminfile = fopen(FORMFILE, "r")) == NULL)
-	{
-		/*FormFactorCalculator formFactors(&triangleList);
-		formFactors.CalculateForms();
-		formFactors.SaveForms(FORMFILE);*/
-		FormFactorCalculator::init(&triangleList);
-		FormFactorCalculator::inst()->CalculateForms();
-		FormFactorCalculator::inst()->SaveForms(FORMFILE);
-	}
-	else
-	{
-		fclose(forminfile);
-		FormFactorCalculator::init(FORMFILE);
-	}
-
-	Shooting::Perform(emissionList, triangleList);
-	/*
-	* Tokens associated with light parameters
-	*/
-	nameListLights[0] = GZ_DIRECTIONAL_LIGHT;
-	valueListLights[0] = (GzPointer)&light1;
-	nameListLights[1] = GZ_DIRECTIONAL_LIGHT;
-	valueListLights[1] = (GzPointer)&light2;
-	nameListLights[2] = GZ_DIRECTIONAL_LIGHT;
-	valueListLights[2] = (GzPointer)&light3;
-	status |= m_pRender->GzPutAttribute(3, nameListLights, valueListLights);
-
-	nameListLights[0] = GZ_AMBIENT_LIGHT;
-	valueListLights[0] = (GzPointer)&ambientlight;
-	status |= m_pRender->GzPutAttribute(1, nameListLights, valueListLights);
-
-	/*
-	* Tokens associated with shading
-	*/
-	nameListShader[0] = GZ_DIFFUSE_COEFFICIENT;
-	valueListShader[0] = (GzPointer)diffuseCoefficient;
-
-	/*
-	* Select either GZ_COLOR or GZ_NORMALS as interpolation mode
-	*/
-	nameListShader[1] = GZ_INTERPOLATE;
-	//interpStyle = GZ_COLOR;         /* Gouraud shading */
-	interpStyle = GZ_NORMALS;         /* Phong shading */
-	valueListShader[1] = (GzPointer)&interpStyle;
-
-	nameListShader[2] = GZ_AMBIENT_COEFFICIENT;
-	valueListShader[2] = (GzPointer)ambientCoefficient;
-	nameListShader[3] = GZ_SPECULAR_COEFFICIENT;
-	valueListShader[3] = (GzPointer)specularCoefficient;
-	nameListShader[4] = GZ_DISTRIBUTION_COEFFICIENT;
-	specpower = 32;
-	valueListShader[4] = (GzPointer)&specpower;
-	//nameListShader[5] = GZ_TEXTURE_MAP;
-#if 0   /* set up null texture function or valid pointer */
-	valueListShader[5] = (GzPointer)0;
-#else
-	//valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
-#endif
-	status |= m_pRender->GzPutAttribute(5, nameListShader, valueListShader);
-
-
-	//status |= m_pRender->GzPushMatrix(scale);  
-	//status |= m_pRender->GzPushMatrix(rotateY); 
-	//status |= m_pRender->GzPushMatrix(rotateX);
-	
-	//if (fclose(forminfile))
-	//	AfxMessageBox(_T("The input file was not closed\n"));
-
-	if (status) exit(GZ_FAILURE);
-
-	if (status)
-		return(GZ_FAILURE);
-	else
-		return(GZ_SUCCESS);
+	int doTheThing = 0;
+//
+//	//Calculate/Load Form Factors
+//	FILE *forminfile;
+//	if ((forminfile = fopen(FORMFILE, "r")) == NULL)
+//	{
+//		/*FormFactorCalculator formFactors(&triangleList);
+//		formFactors.CalculateForms();
+//		formFactors.SaveForms(FORMFILE);*/
+//		FormFactorCalculator::init(&triangleList);
+//		FormFactorCalculator::inst()->CalculateForms();
+//		FormFactorCalculator::inst()->SaveForms(FORMFILE);
+//	}
+//	else
+//	{
+//		fclose(forminfile);
+//		FormFactorCalculator::init(FORMFILE);
+//	}
+//
+//	Shooting::Perform(emissionList, triangleList);
+//	/*
+//	* Tokens associated with light parameters
+//	*/
+//	nameListLights[0] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[0] = (GzPointer)&light1;
+//	nameListLights[1] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[1] = (GzPointer)&light2;
+//	nameListLights[2] = GZ_DIRECTIONAL_LIGHT;
+//	valueListLights[2] = (GzPointer)&light3;
+//	status |= m_pRender->GzPutAttribute(3, nameListLights, valueListLights);
+//
+//	nameListLights[0] = GZ_AMBIENT_LIGHT;
+//	valueListLights[0] = (GzPointer)&ambientlight;
+//	status |= m_pRender->GzPutAttribute(1, nameListLights, valueListLights);
+//
+//	/*
+//	* Tokens associated with shading
+//	*/
+//	nameListShader[0] = GZ_DIFFUSE_COEFFICIENT;
+//	valueListShader[0] = (GzPointer)diffuseCoefficient;
+//
+//	/*
+//	* Select either GZ_COLOR or GZ_NORMALS as interpolation mode
+//	*/
+//	nameListShader[1] = GZ_INTERPOLATE;
+//	//interpStyle = GZ_COLOR;         /* Gouraud shading */
+//	interpStyle = GZ_NORMALS;         /* Phong shading */
+//	valueListShader[1] = (GzPointer)&interpStyle;
+//
+//	nameListShader[2] = GZ_AMBIENT_COEFFICIENT;
+//	valueListShader[2] = (GzPointer)ambientCoefficient;
+//	nameListShader[3] = GZ_SPECULAR_COEFFICIENT;
+//	valueListShader[3] = (GzPointer)specularCoefficient;
+//	nameListShader[4] = GZ_DISTRIBUTION_COEFFICIENT;
+//	specpower = 32;
+//	valueListShader[4] = (GzPointer)&specpower;
+//	//nameListShader[5] = GZ_TEXTURE_MAP;
+//#if 0   /* set up null texture function or valid pointer */
+//	valueListShader[5] = (GzPointer)0;
+//#else
+//	//valueListShader[5] = (GzPointer)(tex_fun);	/* or use ptex_fun */
+//#endif
+//	status |= m_pRender->GzPutAttribute(5, nameListShader, valueListShader);
+//
+//
+//	//status |= m_pRender->GzPushMatrix(scale);  
+//	//status |= m_pRender->GzPushMatrix(rotateY); 
+//	//status |= m_pRender->GzPushMatrix(rotateX);
+//	
+//	//if (fclose(forminfile))
+//	//	AfxMessageBox(_T("The input file was not closed\n"));
+//
+//	if (status) exit(GZ_FAILURE);
+//
+//	if (status)
+//		return(GZ_FAILURE);
+//	else
+//		return(GZ_SUCCESS);
 }
 
 int Application5::Render()

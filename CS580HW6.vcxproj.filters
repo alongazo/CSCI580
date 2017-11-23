@@ -105,6 +105,15 @@
     <ClCompile Include="Math\Vert.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Math\Ray.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\RayIntersection.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\RayTracer.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CS580HW.rc">
@@ -202,6 +211,15 @@
     <ClInclude Include="Math\Vert.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="Math\Ray.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RayIntersection.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\RayTracer.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\CS580HW.ico">
@@ -224,5 +242,10 @@
     <CustomBuild Include="res\CS580HW.rc2">
       <Filter>Resource Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Application5.cpp.backup">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

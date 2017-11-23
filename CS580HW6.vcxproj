@@ -140,6 +140,9 @@
     <ClCompile Include="HemiCube.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="mat.cpp" />
+    <ClCompile Include="Math\Ray.cpp" />
+    <ClCompile Include="Math\RayIntersection.cpp" />
+    <ClCompile Include="Math\RayTracer.cpp" />
     <ClCompile Include="math\RNG.cpp" />
     <ClCompile Include="Math\Tri.cpp" />
     <ClCompile Include="Math\Vert.cpp" />
@@ -179,7 +182,10 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="mathext.h" />
+    <ClInclude Include="Math\RayIntersection.h" />
+    <ClInclude Include="Math\RayTracer.h" />
     <ClInclude Include="math\RNG.h" />
+    <ClInclude Include="Math\Ray.h" />
     <ClInclude Include="Math\Tri.h" />
     <ClInclude Include="Math\Vert.h" />
     <ClInclude Include="minRend.h" />
@@ -210,6 +216,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Application5.cpp.backup" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

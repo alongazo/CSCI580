@@ -141,7 +141,7 @@ Vec4 GzRender::interpPlane(const Vec3& a, const Vec3& b, const Vec3& c)
 	Vec3 ca = a - c;
 	Vec3 normal = normalize(cross(ab, ca));
 	float d = -dot(normal, a);
-	ASSERT(dot(normal, a) + d < FLT_EPSILON);
+	assert(dot(normal, a) + d < FLT_EPSILON);
 
 	return Vec4(normal, d);
 }

@@ -8,6 +8,9 @@
 #include "Material.h"
 #include "../vec.h"
 #include "../Math/Vert.h"
+#include "../Math/Ray.h"
+
+class RayIntersection;
 
 class Patch;
 typedef std::shared_ptr<Patch> PatchPtr;
@@ -43,6 +46,9 @@ public:
 	void updateResidual(const Vec3& delta);
 	void resetResidual();
 
+	// MEMBER FUNCTIONS
+	RayIntersection intersectWithRay(const Ray& ray) const;
+
 private:
 	// MEMBERS
 	MaterialPtr _material;
@@ -59,15 +65,15 @@ private:
 
 // COMPARATOR
 inline
-bool operator<(const Patch& lhs, const Patch& rhs)
+bool operator<(const PatchPtr& lhs, const PatchPtr& rhs)
 {
-	return length2(lhs.emissionEnergy()) < length2(rhs.emissionEnergy());
+	return length2(lhs->emissionEnergy()) < length2(rhs->emissionEnergy());
 }
 
 inline
-bool operator>(const Patch& lhs, const Patch& rhs)
+bool operator>(const PatchPtr& lhs, const PatchPtr& rhs)
 {
-	return length2(lhs.emissionEnergy()) > length2(rhs.emissionEnergy());
+	return length2(lhs->emissionEnergy()) > length2(rhs->emissionEnergy());
 }
 
 // CONSTRUCTORS

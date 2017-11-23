@@ -2,6 +2,7 @@
 
 #include <math.h>
 
+#include "../Math/RayIntersection.h"
 #include "../Math/RNG.h"
 
 // CONSTRUCTORS
@@ -54,4 +55,55 @@ Vec3 Patch::randomPoint() const
 	// use barycentric coordinates to get random point
 	return _v0->position * (1 - r1Sqrt) + _v1->position * 
 		(r1Sqrt * (1 - r2)) + _v2->position * (r1Sqrt * r2);
+}
+
+// MEMBER FUNCTIONS
+RayIntersection Patch::intersectWithRay(const Ray& ray) const
+{
+	Vec3 origin = ray.origin();
+	Vec3 direction = ray.direction();
+
+	Vec3 e1 = _v1->position - _v0->position;
+	Vec3 e2 = _v2->position - _v0->position;
+
+	Vec3 p = cross(direction, e2);
+	float dotProd = dot(e1, p);
+
+	if (fabs(dotProd) < 0.000001f)
+	{
+		return RayIntersection();
+	}
+
+	const float invDot = 1.0 / dotProd;
+
+	Vec3 t = origin - _v0->position;
+	float lambda = dot(t, p) * invDot;
+
+	if (lambda < 0.f || lambda > 1.f)
+	{
+		return RayIntersection();
+	}
+
+	Vec3 q = cross(t, e1);
+	float mu = dot(direction, q) * invDot;
+
+	if (mu < 0.f || mu + lambda > 1.f)
+	{
+		return RayIntersection();
+	}
+
+	float f = dot(e2, q);
+	f *= invDot - 0.000001f;
+	if (f < 0.000001f)
+	{
+		return RayIntersection();
+	}
+
+	PatchPtr ptr = PatchPtr(new Patch(*this));
+	RayIntersection intersection;
+	intersection.patch= ptr;
+	intersection.uv = Vec2(lambda, mu);
+	intersection.distance = f;
+	intersection.intersected = true;
+	return intersection;
 }

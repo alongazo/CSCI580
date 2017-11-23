@@ -3,7 +3,7 @@
 // ACCESSORS
 std::vector<VertPtr> PatchCollection::vertices() const
 {
-	std::vector<VertPtr> vertices(_vertices.size());
+	std::vector<VertPtr> vertices;
 
 	for (auto pair : _vertices)
 	{
@@ -15,7 +15,7 @@ std::vector<VertPtr> PatchCollection::vertices() const
 
 std::vector<PatchPtr> PatchCollection::patches() const
 {
-	std::vector<PatchPtr> patches(_patches.size());
+	std::vector<PatchPtr> patches;
 
 	for (auto pair : _patches)
 	{
@@ -35,7 +35,7 @@ std::vector<PatchPtr> PatchCollection::patchesAdjacentToVertex(const VertPtr& ve
 	}
 
 	// get all patches that have matching ids
-	std::vector<PatchPtr> patches(pair->second.size());
+	std::vector<PatchPtr> patches;
 	for (auto patchId : pair->second)
 	{
 		patches.push_back(patchById(patchId));
