@@ -26,7 +26,7 @@ public:
 	~FormFactorCalculator();
 
 	void CalculateForms();
-	double LookUp(int indexA, int indexB);
+	float LookUp(int indexA, int indexB);
 	void SaveForms(std::string filePath);
 	void LoadForms(std::string filePath);
 
@@ -35,7 +35,7 @@ private:
 
 	HemiCube *hemiCube;
 	const std::vector<Triangle> *patchList;
-	std::map<int, std::map<int, double>> *formMap;
+	std::map<int, std::map<int, float>> *formMap;
 };
 
 inline

@@ -17,15 +17,15 @@ public:
 	HemiCube(int dimension, const std::vector<Triangle>* patchList);
 	~HemiCube();
 
-	void FormFactor(Triangle* shooter, std::map<int, double> *formMap);
+	void FormFactor(Triangle* shooter, std::map<int, float> *formMap);
 
-	double *sideWeightTable;
-	double *topWeightTable;
+	float *sideWeightTable;
+	float *topWeightTable;
 
 private:
-	void  CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, double> *formMap);
+	void  CalculateView(Triangle* shooter, Direction dir, bool isTop, std::map<int, float> *formMap);
 	void FillTables();
-	double DeltaForm(int px, int py, bool isTop);
+	float DeltaForm(int px, int py, bool isTop);
 	Point Rotate(Point p, float degrees, Point about);
 
 	inline int ARRAY(int x, int y) { return (x + y*dx); }
