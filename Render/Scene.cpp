@@ -14,13 +14,9 @@ int Scene::load(const std::string& filePath)
 		return GZ_FAILURE;
 	}
 
-	int currentUV = 0;
-	int currentNormal = 0;
-	int currentTriangle = 0;
 	char objectType1[64];
 	char objectType2[64];
 	char dummy[1024];
-	bool datavalid = false;
 
 	std::vector<Vec3> vertices;
 	std::vector<Vec3> normals;
@@ -36,13 +32,14 @@ int Scene::load(const std::string& filePath)
 		else if (strcmp(dummy, "vt") == 0)
 		{
 			// not used by our radiosity implementation
+			Vec2 uv;
+			fscanf(infile, "%f %f", &uv.x, &uv.y);
 		}
 		else if (strcmp(dummy, "vn") == 0)
 		{
 			Vec3 normal;
 			fscanf(infile, "%f %f %f", &normal.x, &normal.y, &normal.z);
-			currentNormal++;
-
+			normals.push_back(normal);
 		}
 		else if (strcmp(dummy, "g") == 0)
 		{
