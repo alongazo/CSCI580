@@ -37,7 +37,7 @@ Mat3 inverse(const Mat3& mat)
 	// determinant from minors
 	float det = MATA * Ca + MATB * Cb + MATC * Cc;
 
-	ASSERT(det != 0.f);
+	assert(det != 0.f);
 
 	float oneOverDet = 1.f / det;
 
@@ -127,7 +127,7 @@ Mat4 inverse(const Mat4& mat)
 	// determinant from minors
 	float det = MATA * Ca + MATB * Cb + MATC * Cc + MATD * Cd;
 
-	ASSERT(det != 0.f);
+	assert(det != 0.f);
 
 	float oneOverDet = 1.f / det;
 

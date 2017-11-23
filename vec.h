@@ -1,7 +1,9 @@
-#include "mathext.h"
-
 #ifndef GZVEC_
 #define GZVEC_
+
+#include <cassert>
+
+#include "mathext.h"
 
 class Vec2;
 class Vec3;
@@ -280,42 +282,42 @@ Vec4& Vec4::operator/=(float val)
 inline
 float& Vec2::operator[](int i)
 {
-	ASSERT(i >= 0 && i < 2);
+	assert(i >= 0 && i < 2);
 	return value[i];
 }
 
 inline
 const float& Vec2::operator[](int i) const
 {
-	ASSERT(i >= 0 && i < 2);
+	assert(i >= 0 && i < 2);
 	return value[i];
 }
 
 inline
 float& Vec3::operator[](int i)
 {
-	ASSERT(i >= 0 && i < 3);
+	assert(i >= 0 && i < 3);
 	return value[i];
 }
 
 inline
 const float& Vec3::operator[](int i) const
 {
-	ASSERT(i >= 0 && i < 3);
+	assert(i >= 0 && i < 3);
 	return value[i];
 }
 
 inline
 float& Vec4::operator[](int i)
 {
-	ASSERT(i >= 0 && i < 4);
+	assert(i >= 0 && i < 4);
 	return value[i];
 }
 
 inline
 const float& Vec4::operator[](int i) const
 {
-	ASSERT(i >= 0 && i < 4);
+	assert(i >= 0 && i < 4);
 	return value[i];
 }
 
@@ -526,7 +528,7 @@ float length(const Vec4& v)
 inline
 Vec2 normalize(const Vec2& v)
 {
-	ASSERT(length2(v) > 0.0f);
+	assert(length2(v) > 0.0f);
 	return v / length(v);
 }
 
@@ -535,7 +537,7 @@ Vec2 normalize(const Vec2& v)
 inline
 Vec3 normalize(const Vec3& v)
 {
-	ASSERT(length2(v) > 0.0f);
+	assert(length2(v) > 0.0f);
 	return v / length(v);
 }
 
@@ -544,7 +546,7 @@ Vec3 normalize(const Vec3& v)
 inline
 Vec4 normalize(const Vec4& v)
 {
-	ASSERT(length2(v) > 0.0f);
+	assert(length2(v) > 0.0f);
 	return v / length(v);
 }
 

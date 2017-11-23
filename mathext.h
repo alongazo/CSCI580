@@ -1,10 +1,18 @@
 #ifndef GZMATHEXT_
 #define GZMATHEXT_
 
-#include "math.h"
+#include <math.h>
+
+#ifndef min
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+#endif
+
+#ifndef max
+#define max(x, y) (((x) > (y)) ? (x) : (y))
+#endif
 
 #ifndef PI
-#define PI ((float)3.14159265358979323846)
+#define PI ((float)3.14159265358979323846264338327950288)
 #endif
 
 #ifndef DEG2RAD

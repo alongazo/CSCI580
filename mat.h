@@ -1,8 +1,9 @@
-
-#include "vec.h"
-
 #ifndef GZMAT_
 #define GZMAT_
+
+#include <cassert>
+
+#include "vec.h"
 
 class Mat3;
 class Mat4;
@@ -193,7 +194,7 @@ const Vec4& Mat4::operator[](int i) const
 inline
 Mat3 operator*(const Mat3& a, const Mat3& b)
 {
-	ASSERT(!"PROBABLY WRONG...");
+	assert(!"PROBABLY WRONG...");
 	Mat3 bt(transpose(b));
 	return Mat3(dot(a[0], bt[0]), dot(a[0], bt[1]), dot(a[0], bt[2]),
 				dot(a[1], bt[0]), dot(a[1], bt[1]), dot(a[1], bt[2]),
