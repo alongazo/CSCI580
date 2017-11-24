@@ -47,6 +47,7 @@ int Scene::load(const std::string& filePath)
 		else if (strcmp(dummy, "g") == 0)
 		{
 			fscanf(infile, "%s", &objectType);
+			int doTheThing = 0;
 		}
 		else if (strcmp(dummy, "f") == 0)
 		{
@@ -67,8 +68,12 @@ int Scene::load(const std::string& filePath)
 			VertPtr v1;
 			VertPtr v2;
 
+			int id1 = (vertexIndex1 << 16) + normalIndex1;
+			int id2 = (vertexIndex2 << 16) + normalIndex2;
+			int id3 = (vertexIndex3 << 16) + normalIndex3;
+
 			// try to find existing vertex index, otherwise create a new one
-			auto pair = vertices.find(vertexIndex1);
+			auto pair = vertices.find(id1);
 			if (pair != vertices.end())
 			{
 				// retrieve existing definition
@@ -82,10 +87,10 @@ int Scene::load(const std::string& filePath)
 				Vec3 n1 = normals[normalIndex1 - 1];
 				//n1[2] = -n1[2];
 				v0 = std::make_shared<Vert>(a, n1);
-				vertices.emplace(vertexIndex1, v0);
+				vertices[id1] = v0;
 			}
 
-			pair = vertices.find(vertexIndex2);
+			pair = vertices.find(id2);
 			if (pair != vertices.end())
 			{
 				// retrieve existing definition
@@ -99,10 +104,10 @@ int Scene::load(const std::string& filePath)
 				Vec3 n2 = normals[normalIndex2 - 1];
 				//n2[2] = -n2[2];
 				v1 = std::make_shared<Vert>(b, n2);
-				vertices.emplace(vertexIndex2, v1);
+				vertices[id2] = v1;
 			}
 
-			pair = vertices.find(vertexIndex3);
+			pair = vertices.find(id3);
 			if (pair != vertices.end())
 			{
 				// retrieve existing definition
@@ -116,28 +121,28 @@ int Scene::load(const std::string& filePath)
 				Vec3 n3 = normals[normalIndex3 - 1];
 				//n3[2] = -n3[2];
 				v2 = std::make_shared<Vert>(c, n3);
-				vertices.emplace(vertexIndex3, v2);
+				vertices[id3] = v2;
 			}
 
 			// create triangle
 			Tri tri = { v0, v1, v2, Tri::DEFAULT };
-			if (strstr(objectType, "plane") != NULL)
+			if (strcmp(objectType, "plane") == 0)
 			{
 				tri.type = Tri::PLANE;
 			}
-			else if (strstr(objectType, "cube") != NULL)
+			else if (strcmp(objectType, "cube") == 0)
 			{
 				tri.type = Tri::CUBE;
 			}
-			else if (strstr(objectType, "light") != NULL)
+			else if (strcmp(objectType, "light") == 0)
 			{
 				tri.type = Tri::LIGHT;
 			}
-			else if (strstr(objectType, "green") != NULL)
+			else if (strcmp(objectType, "green") == 0)
 			{
 				tri.type = Tri::GREEN_WALL;
 			}
-			else if (strstr(objectType, "red") != NULL)
+			else if (strcmp(objectType, "red") == 0)
 			{
 				tri.type = Tri::RED_WALL;
 			}
@@ -203,7 +208,7 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 	}
 
 	// split patches and merge all duplicate vertices
-	patches = splitAndMerge(patches, patchSize);
+	//patches = splitAndMerge(patches, patchSize);
 	return patches;
 }
 
