@@ -248,11 +248,11 @@ PatchFactorCollectionPtr Engine::calculateVisiblePatches(const PatchPtr& src)
 		auto found = patchIdToRayHits.find(hitId);
 		if (found == patchIdToRayHits.end())
 		{
-			patchIdToRayHits.emplace(hitId, 1);
+			patchIdToRayHits[hitId] = 1;
 		}
 		else
 		{
-			patchIdToRayHits.at(hitId) += 1;
+			patchIdToRayHits[hitId] += 1;
 		}
 	}
 
@@ -295,6 +295,6 @@ PatchFactorCollectionPtr Engine::visiblePatches(const PatchPtr& src)
 	}
 
 	PatchFactorCollectionPtr patchFactors = calculateVisiblePatches(src);
-	_patchToVisiblePatchFormFactors.emplace(src->id(), patchFactors);
+	_patchToVisiblePatchFormFactors[src->id()] = patchFactors;
 	return patchFactors;
 }
