@@ -5,6 +5,8 @@
 
 #include "mathext.h"
 
+#define EPSILON ((float)4.37114e-05)
+
 class Vec2;
 class Vec3;
 class Vec4;
@@ -449,6 +451,27 @@ inline
 Vec4 operator/(const Vec4& v, float s)
 {
 	return Vec4(v.x / s, v.y / s, v.z / s, v.w / s);
+}
+
+// COMPARATORS
+inline
+bool operator==(const Vec2& a, const Vec2& b)
+{
+	return fabsf(a.x - b.x) < EPSILON && fabsf(a.y - b.y) < EPSILON;
+}
+
+inline
+bool operator==(const Vec3& a, const Vec3& b)
+{
+	return fabsf(a.x - b.x) < EPSILON && fabsf(a.y - b.y) < EPSILON &&
+		   fabsf(a.z - b.z) < EPSILON;
+}
+
+inline
+bool operator==(const Vec4& a, const Vec4& b)
+{
+	return fabsf(a.x - b.x) < EPSILON && fabsf(a.y - b.y) < EPSILON &&
+		   fabsf(a.z - b.z) < EPSILON && fabsf(a.w - b.w) < EPSILON;
 }
 
 // VECTOR OPEARTIONS
