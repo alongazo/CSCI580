@@ -165,7 +165,7 @@ void Hemicube2::projectForPixel(const std::shared_ptr<Patch>& patch,
 	float dist2 = length2(patchCenter - pixelPos);
 
 	// check if pixel can "see" patch and is closer than previously intersected patch
-	Ray ray(pixelPos, pixelDir);
+	Ray ray(_center, pixelDir);
 	RayIntersection intersect = patch->intersectWithRay(ray);
 	if (intersect.intersected &&
 		dist2 <= std::get<2>(_deltaFactors[index]))
