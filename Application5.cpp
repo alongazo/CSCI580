@@ -194,10 +194,6 @@ int Application5::Initialize()
 	engine->setScene(scene);
 	engine->calculateIllumination(15, 500, 0.2f);
 
-	//engine = std::make_shared<Engine>();
-	//engine->setScene(scene);
-	//engine->calculateIllumination(15, 500, 0.2f);
-
 	return GZ_SUCCESS;
 }
 
