@@ -18,47 +18,53 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 	_zAxis = normalize(_zAxis);
 	_yAxis = normalize(cross(_zAxis, _xAxis));
 
-	// prepare to compute delta form factors
-	float pixelSize = _sideLength / res;
-	float pixelArea = pixelSize * pixelSize;
-	float initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	float initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	float initialZ = _sideLength;
-
-	// compute delta form factors for top
 	int res2 = res * res;
-	for (int i = 0; i < res2; ++i)
+	for (int i = 0; i < 5 * res2; ++i)
 	{
-		float x = initialX + (i / res) * pixelSize;
-		float y = initialY + (i % res) * pixelSize;
-
-		Vec3 vec(x, y, 1);
-		float len2 = length2(vec);
-		float len4 = len2 * len2;
-
-		std::get<1>(_deltaFactors[i]) = pixelArea / (PI * len4);
+		std::get<1>(_deltaFactors[i]) = 1.f / (5.f * res * res);
 	}
 
-	// compute delta form factors for sides (same for all sides)
-	initialX = _sideLength / 2.f;
-	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	initialZ = pixelSize / 2.f;
-	for (int i = 0; i < res2; ++i)
-	{
-		// determine coordinates in hemicube space
-		float y = initialY + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * pixelSize;
+	//// prepare to compute delta form factors
+	//float pixelSize = _sideLength / res;
+	//float pixelArea = pixelSize * pixelSize;
+	//float initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
+	//float initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
+	//float initialZ = _sideLength;
 
-		Vec3 vec(initialX, y, 1);
-		float len2 = length2(vec);
-		float len4 = len2 * len2;
-		float delta = (pixelArea * z) / (PI * len4);
+	//// compute delta form factors for top
+	//int res2 = res * res;
+	//for (int i = 0; i < res2; ++i)
+	//{
+	//	float x = initialX + (i / res) * pixelSize;
+	//	float y = initialY + (i % res) * pixelSize;
 
-		std::get<1>(_deltaFactors[i + res2]) = delta;
-		std::get<1>(_deltaFactors[i + res2 * 2]) = delta;
-		std::get<1>(_deltaFactors[i + res2 * 3]) = delta;
-		std::get<1>(_deltaFactors[i + res2 * 4]) = delta;
-	}
+	//	Vec3 vec(x, y, 1);
+	//	float len2 = length2(vec);
+	//	float len4 = len2 * len2;
+
+	//	std::get<1>(_deltaFactors[i]) = pixelArea / (PI * len4);
+	//}
+
+	//// compute delta form factors for sides (same for all sides)
+	//initialX = _sideLength / 2.f;
+	//initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
+	//initialZ = pixelSize / 2.f;
+	//for (int i = 0; i < res2; ++i)
+	//{
+	//	// determine coordinates in hemicube space
+	//	float y = initialY + (i / res) * pixelSize;
+	//	float z = initialZ + (i % res) * pixelSize;
+
+	//	Vec3 vec(initialX, y, 1);
+	//	float len2 = length2(vec);
+	//	float len4 = len2 * len2;
+	//	float delta = (pixelArea * z) / (PI * len4);
+
+	//	std::get<1>(_deltaFactors[i + res2]) = delta;
+	//	std::get<1>(_deltaFactors[i + res2 * 2]) = delta;
+	//	std::get<1>(_deltaFactors[i + res2 * 3]) = delta;
+	//	std::get<1>(_deltaFactors[i + res2 * 4]) = delta;
+	//}
 }
 
 // MEMBER FUNCTIONS
@@ -73,7 +79,7 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform top plane projection
 	float initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	float initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	float initialZ = _sideLength;
+	float initialZ = _sideLength / 2.f;
 
 	// perform for top
 	for (int i = 0; i < res2; ++i)
@@ -87,12 +93,12 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform for left and right side
 	initialX = _sideLength / 2.f;
 	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		// determine coordinates in hemicube space
 		float y = initialY + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * pixelSize;
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 		projectForPixel(patch, Vec3(-initialX, y, z), res2 + i);
 		projectForPixel(patch, Vec3(initialX, y, z), 2 * res2 + i);
 	}
@@ -100,11 +106,11 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform for back and front side
 	initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	initialY = _sideLength / 2.f;
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		float x = initialX + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * pixelSize;
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 		projectForPixel(patch, Vec3(x, -initialY, z), 3 * res2 + i);
 		projectForPixel(patch, Vec3(x, initialY, z), 4 * res2 + i);
 	}
