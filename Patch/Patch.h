@@ -50,6 +50,8 @@ public:
 	// MEMBER FUNCTIONS
 	std::shared_ptr<PatchCollection> split() const;
 	RayIntersection intersectWithRay(const Ray& ray) const;
+	bool hasVert(const VertPtr& vert) const;
+	bool hasVert(int id) const;
 
 private:
 	// MEMBERS
@@ -135,7 +137,7 @@ const Vec3& Patch::normal() const
 inline
 std::vector<VertPtr> Patch::vertices() const
 {
-	return{ _v0, _v1, _v2 };
+	return { _v0, _v1, _v2 };
 }
 
 inline
@@ -167,6 +169,21 @@ inline
 void Patch::resetResidual()
 {
 	_residual = Vec3();
+}
+
+// MEMBER FUNCTIONS
+inline
+bool Patch::hasVert(const VertPtr& vert) const
+{
+	return hasVert(vert->id);
+}
+
+inline
+bool Patch::hasVert(int id) const
+{
+	return _v0->id == id ||
+		   _v1->id == id ||
+		   _v2->id == id;
 }
 
 #endif
