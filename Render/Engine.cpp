@@ -162,7 +162,7 @@ void Engine::doIterate()
 
 void Engine::shootRadiosity(const PatchPtr& src)
 {
-	Vec3 srcRadiosity = src->residual();
+	Vec3 radiosity = src->residual();
 
 	// shoot radiosity
 	PatchFactorCollectionPtr visiblePatchWFormFactors = visiblePatches(src);
@@ -171,12 +171,15 @@ void Engine::shootRadiosity(const PatchPtr& src)
 		PatchPtr patch = pair.first;
 		float formFactor = pair.second;
 
-		Vec3 delta = patch->material()->reflectanceColor *
-			patch->material()->reflectanceFactor *
-			formFactor * (src->area() / patch->area());
+		Vec3 reflectColor = patch->material()->reflectanceColor;
+		float reflectFactor = patch->material()->reflectanceFactor;
+		float FdA = reflectFactor * formFactor * (src->area() / patch->area());
+		Vec3 dBi(radiosity.r * reflectColor.r * FdA,
+				 radiosity.g * reflectColor.g * FdA,
+				 radiosity.b * reflectColor.b * FdA);
 
-		patch->updateAccumulated(delta);
-		patch->updateResidual(delta);
+		patch->updateAccumulated(dBi);
+		patch->updateResidual(dBi);
 	}
 
 	src->resetResidual();

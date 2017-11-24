@@ -24,7 +24,7 @@ Patch::Patch(const VertPtr& v0, const VertPtr& v1, const VertPtr& v2,
 	Vec3 e2 = _v2->position - _v0->position;
 	_normal = cross(e1, e2);
 	_area = 0.5f * length(_normal);
-	_normal = normalize(_normal);
+	_normal = normalize((_v0->normal + _v1->normal + _v2->normal) / 3.f);
 	
 	// compute center
 	_center = (_v0->position + _v1->position + _v2->position) * 0.333333333f;

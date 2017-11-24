@@ -16,11 +16,11 @@
     <Filter Include="Patch">
       <UniqueIdentifier>{0bdc56ac-1512-4468-86e2-92f7212ccc9a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Math">
-      <UniqueIdentifier>{0fd33c1c-4b08-4623-b6ac-2eb9d24752ca}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Render">
       <UniqueIdentifier>{48c0df4a-10a5-4696-be5f-aea2882ba705}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{0fd33c1c-4b08-4623-b6ac-2eb9d24752ca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

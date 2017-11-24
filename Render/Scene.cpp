@@ -172,16 +172,16 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 	materials[(int)Tri::PLANE]->emissionColor = { 0.f, 0.f, 0.f };
 	materials[(int)Tri::PLANE]->reflectanceColor = { 0.25f, 0.25f, 0.25f };
 	materials[(int)Tri::PLANE]->emissionFactor = 0.0f;
-	materials[(int)Tri::PLANE]->reflectanceFactor = 1.0f;
+	materials[(int)Tri::PLANE]->reflectanceFactor = 0.5f;
 
 	materials[(int)Tri::CUBE]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::CUBE]->emissionFactor = 0.0f;
-	materials[(int)Tri::CUBE]->reflectanceFactor = 1.0f;
+	materials[(int)Tri::CUBE]->reflectanceFactor = 0.5f;
 
 	materials[(int)Tri::LIGHT]->emissionColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::LIGHT]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
-	materials[(int)Tri::LIGHT]->emissionFactor = 1.0f;
+	materials[(int)Tri::LIGHT]->emissionFactor = 30.0f;
 	materials[(int)Tri::LIGHT]->reflectanceFactor = 0.0f;
 
 	materials[(int)Tri::DEFAULT]->emissionColor = { 0.0f, 0.0f, 0.0f };
@@ -208,7 +208,7 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 	}
 
 	// split patches and merge all duplicate vertices
-	//patches = splitAndMerge(patches, patchSize);
+	patches = splitAndMerge(patches, patchSize);
 	return patches;
 }
 
