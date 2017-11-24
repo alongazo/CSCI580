@@ -170,9 +170,9 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 	materials[5] = std::make_shared<Material>();
 
 	materials[(int)Tri::PLANE]->emissionColor = { 0.f, 0.f, 0.f };
-	materials[(int)Tri::PLANE]->reflectanceColor = { 0.25f, 0.25f, 0.25f };
+	materials[(int)Tri::PLANE]->reflectanceColor = { 0.95f, 0.95f, 0.95f };
 	materials[(int)Tri::PLANE]->emissionFactor = 0.0f;
-	materials[(int)Tri::PLANE]->reflectanceFactor = 0.5f;
+	materials[(int)Tri::PLANE]->reflectanceFactor = 0.75f;
 
 	materials[(int)Tri::CUBE]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 1.0f, 1.0f };

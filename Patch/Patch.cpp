@@ -53,7 +53,7 @@ Vec3 Patch::randomPoint() const
 	float r2 = RNG::randContinuous();
 	//float r3 = RNG::randContinuous();
 
-	// use unknown method to get random point on triangle
+	// get random point on triangle
 	float r1Sqrt = sqrt(r1);
 	return _v0->position * (1 - r1Sqrt) + _v1->position * 
 		(r1Sqrt * (1 - r2)) + _v2->position * (r1Sqrt * r2);
