@@ -78,7 +78,9 @@ int Scene::load(const std::string& filePath)
 			{
 				// create new vertex
 				Vec3 a = positions[vertexIndex1 - 1];
+				//a[2] = -a[2];
 				Vec3 n1 = normals[normalIndex1 - 1];
+				//n1[2] = -n1[2];
 				v0 = std::make_shared<Vert>(a, n1);
 				vertices.emplace(vertexIndex1, v0);
 			}
@@ -93,7 +95,9 @@ int Scene::load(const std::string& filePath)
 			{
 				// create new vertex
 				Vec3 b = positions[vertexIndex2 - 1];
+				//b[2] = -b[2];
 				Vec3 n2 = normals[normalIndex2 - 1];
+				//n2[2] = -n2[2];
 				v1 = std::make_shared<Vert>(b, n2);
 				vertices.emplace(vertexIndex2, v1);
 			}
@@ -108,7 +112,9 @@ int Scene::load(const std::string& filePath)
 			{
 				// create new vertex
 				Vec3 c = positions[vertexIndex3 - 1];
+				//c[2] = -c[2];
 				Vec3 n3 = normals[normalIndex3 - 1];
+				//n3[2] = -n3[2];
 				v2 = std::make_shared<Vert>(c, n3);
 				vertices.emplace(vertexIndex3, v2);
 			}
@@ -160,13 +166,13 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 
 	materials[(int)Tri::PLANE]->emissionColor = { 0.f, 0.f, 0.f };
 	materials[(int)Tri::PLANE]->reflectanceColor = { 0.25f, 0.25f, 0.25f };
-	materials[(int)Tri::PLANE]->emissionFactor = 0.f;
-	materials[(int)Tri::PLANE]->reflectanceFactor = 0.5f;
+	materials[(int)Tri::PLANE]->emissionFactor = 0.0f;
+	materials[(int)Tri::PLANE]->reflectanceFactor = 1.0f;
 
-	materials[(int)Tri::CUBE]->emissionColor = { 0.f, 0.f, 0.f };
+	materials[(int)Tri::CUBE]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::CUBE]->emissionFactor = 0.0f;
-	materials[(int)Tri::CUBE]->reflectanceFactor = 0.5f;
+	materials[(int)Tri::CUBE]->reflectanceFactor = 1.0f;
 
 	materials[(int)Tri::LIGHT]->emissionColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::LIGHT]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
@@ -181,12 +187,12 @@ PatchCollectionPtr Scene::createPatches(float patchSize) const
 	materials[(int)Tri::GREEN_WALL]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::GREEN_WALL]->reflectanceColor = { 0.0f, 1.0f, 0.0f };
 	materials[(int)Tri::GREEN_WALL]->emissionFactor = 0.0f;
-	materials[(int)Tri::GREEN_WALL]->reflectanceFactor = 0.1f;
+	materials[(int)Tri::GREEN_WALL]->reflectanceFactor = 1.0f;
 
 	materials[(int)Tri::RED_WALL]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::RED_WALL]->reflectanceColor = { 1.0f, 0.0f, 0.0f };
 	materials[(int)Tri::RED_WALL]->emissionFactor = 0.0f;
-	materials[(int)Tri::RED_WALL]->reflectanceFactor = 0.1f;
+	materials[(int)Tri::RED_WALL]->reflectanceFactor = 1.0f;
 
 	// create a patch for each triangle
 	for (auto tri : _triangles)

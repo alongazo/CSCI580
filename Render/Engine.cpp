@@ -39,15 +39,15 @@ void Engine::renderScene(GzRender* renderer)
 
 		vertexList[0][0] = v[0]->position[0];
 		vertexList[0][1] = v[0]->position[1];
-		vertexList[0][2] = v[0]->position[2];
+		vertexList[0][2] = -v[0]->position[2];
 
 		vertexList[1][0] = v[1]->position[0];
 		vertexList[1][1] = v[1]->position[1];
-		vertexList[1][2] = v[1]->position[2];
+		vertexList[1][2] = -v[1]->position[2];
 
 		vertexList[2][0] = v[2]->position[0];
 		vertexList[2][1] = v[2]->position[1];
-		vertexList[2][2] = v[2]->position[2];
+		vertexList[2][2] = -v[2]->position[2];
 
 		uvList[0][0] = 0;// t.A.u;
 		uvList[0][1] = 0;// t.A.v;
@@ -60,15 +60,15 @@ void Engine::renderScene(GzRender* renderer)
 
 		normalList[0][0] = v[0]->normal[0];
 		normalList[0][1] = v[0]->normal[1];
-		normalList[0][2] = v[0]->normal[2];
+		normalList[0][2] = -v[0]->normal[2];
 
 		normalList[1][0] = v[1]->normal[0];
 		normalList[1][1] = v[1]->normal[1];
-		normalList[1][2] = v[1]->normal[2];
+		normalList[1][2] = -v[1]->normal[2];
 
 		normalList[2][0] = v[2]->normal[0];
 		normalList[2][1] = v[2]->normal[1];
-		normalList[2][2] = v[2]->normal[2];
+		normalList[2][2] = -v[2]->normal[2];
 
 		Vec3 c0 = clamp(v[0]->color, 0.f, 1.f);
 		Vec3 c1 = clamp(v[1]->color, 0.f, 1.f);
@@ -173,7 +173,7 @@ void Engine::shootRadiosity(const PatchPtr& src)
 
 		Vec3 delta = patch->material()->reflectanceColor *
 			patch->material()->reflectanceFactor *
-			formFactor * (patch->area() / patch->area());
+			formFactor * (src->area() / patch->area());
 
 		patch->updateAccumulated(delta);
 		patch->updateResidual(delta);

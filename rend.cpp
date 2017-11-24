@@ -645,6 +645,7 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3* colors)
 					float bf = -(blue.x * pos.x + blue.y * pos.y + blue.w) / blue.z;
 
 					color = { rf,gf,bf };
+					clamp(color, 0.f, 1.f);
 					//color = interpPlane(ac, bc, cc);
 					/*switch (interp_mode)
 					{
