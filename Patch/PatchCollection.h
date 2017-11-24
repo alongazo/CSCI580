@@ -29,6 +29,7 @@ public:
 	void addPatch(const PatchPtr& patch);
 	void addPatches(const PatchCollection& patches);
 	void addPatches(const PatchCollectionPtr& patches);
+	void mergePatch(const PatchPtr& patch);
 
 private:
 	// HELPER FUNCTIONS

@@ -11,6 +11,7 @@
 #include "../Math/Ray.h"
 
 class RayIntersection;
+class PatchCollection;
 
 class Patch;
 typedef std::shared_ptr<Patch> PatchPtr;
@@ -47,6 +48,7 @@ public:
 	void resetResidual();
 
 	// MEMBER FUNCTIONS
+	std::shared_ptr<PatchCollection> split() const;
 	RayIntersection intersectWithRay(const Ray& ray) const;
 
 private:

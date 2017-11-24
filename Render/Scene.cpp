@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <map>
+#include <queue>
 
 #include "../Math/Vert.h"
 #include "../gz.h"
@@ -20,8 +21,7 @@ int Scene::load(const std::string& filePath)
 	std::map<int, VertPtr> vertices;
 	std::vector<Vec3> positions;
 	std::vector<Vec3> normals;
-	char objectType1[64];
-	char objectType2[64];
+	char objectType[64];
 	char dummy[1024];
 	_triangles.clear();
 	while (fscanf(infile, "%s", dummy) == 1)
@@ -46,11 +46,7 @@ int Scene::load(const std::string& filePath)
 		}
 		else if (strcmp(dummy, "g") == 0)
 		{
-			fscanf(infile, "%s", &objectType1);
-			if (strcmp(objectType1, "default") != 0)
-			{
-				fscanf(infile, "%s", &objectType2);
-			}
+			fscanf(infile, "%s", &objectType);
 		}
 		else if (strcmp(dummy, "f") == 0)
 		{
@@ -119,23 +115,23 @@ int Scene::load(const std::string& filePath)
 
 			// create triangle
 			Tri tri = { v0, v1, v2, Tri::DEFAULT };
-			if (strstr(objectType1, "pPlane") != NULL || strstr(objectType2, "pPlane") != NULL)
+			if (strstr(objectType, "plane") != NULL)
 			{
 				tri.type = Tri::PLANE;
 			}
-			else if (strstr(objectType1, "pCube") != NULL || strstr(objectType2, "pCube") != NULL)
+			else if (strstr(objectType, "cube") != NULL)
 			{
 				tri.type = Tri::CUBE;
 			}
-			else if (strstr(objectType1, "Light") != NULL || strstr(objectType2, "Light") != NULL)
+			else if (strstr(objectType, "light") != NULL)
 			{
 				tri.type = Tri::LIGHT;
 			}
-			else if (strstr(objectType1, "green") != NULL || strstr(objectType2, "green") != NULL)
+			else if (strstr(objectType, "green") != NULL)
 			{
 				tri.type = Tri::GREEN_WALL;
 			}
-			else if (strstr(objectType1, "red") != NULL || strstr(objectType2, "red") != NULL)
+			else if (strstr(objectType, "red") != NULL)
 			{
 				tri.type = Tri::RED_WALL;
 			}
@@ -148,7 +144,7 @@ int Scene::load(const std::string& filePath)
 	return GZ_SUCCESS;
 }
 
-PatchCollectionPtr Scene::createPatches() const
+PatchCollectionPtr Scene::createPatches(float patchSize) const
 {
 	// create the patch collection
 	PatchCollectionPtr patches = std::make_shared<PatchCollection>();
@@ -162,35 +158,35 @@ PatchCollectionPtr Scene::createPatches() const
 	materials[4] = std::make_shared<Material>();
 	materials[5] = std::make_shared<Material>();
 
-	materials[(int)Tri::PLANE]->emissionColor = { 0.1f, 0.1f, 0.1f };
-	materials[(int)Tri::PLANE]->reflectanceColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::PLANE]->emissionColor = { 0.f, 0.f, 0.f };
+	materials[(int)Tri::PLANE]->reflectanceColor = { 0.25f, 0.25f, 0.25f };
 	materials[(int)Tri::PLANE]->emissionFactor = 0.f;
-	materials[(int)Tri::PLANE]->reflectanceFactor = 1.0f;
+	materials[(int)Tri::PLANE]->reflectanceFactor = 0.5f;
 
-	materials[(int)Tri::CUBE]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::CUBE]->emissionColor = { 0.f, 0.f, 0.f };
 	materials[(int)Tri::CUBE]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
-	materials[(int)Tri::CUBE]->emissionFactor = 15.0f;
-	materials[(int)Tri::CUBE]->reflectanceFactor = 0.95f;
+	materials[(int)Tri::CUBE]->emissionFactor = 0.0f;
+	materials[(int)Tri::CUBE]->reflectanceFactor = 0.5f;
 
 	materials[(int)Tri::LIGHT]->emissionColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::LIGHT]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
-	materials[(int)Tri::LIGHT]->emissionFactor = 30.0f;
+	materials[(int)Tri::LIGHT]->emissionFactor = 1.0f;
 	materials[(int)Tri::LIGHT]->reflectanceFactor = 0.0f;
 
-	materials[(int)Tri::DEFAULT]->emissionColor = { 1.0f, 1.0f, 1.0f };
+	materials[(int)Tri::DEFAULT]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::DEFAULT]->reflectanceColor = { 1.0f, 1.0f, 1.0f };
 	materials[(int)Tri::DEFAULT]->emissionFactor = 0.0f;
-	materials[(int)Tri::DEFAULT]->reflectanceFactor = 0.5f;
+	materials[(int)Tri::DEFAULT]->reflectanceFactor = 0.1f;
 
-	materials[(int)Tri::GREEN_WALL]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::GREEN_WALL]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::GREEN_WALL]->reflectanceColor = { 0.0f, 1.0f, 0.0f };
 	materials[(int)Tri::GREEN_WALL]->emissionFactor = 0.0f;
-	materials[(int)Tri::GREEN_WALL]->reflectanceFactor = 1.0f;
+	materials[(int)Tri::GREEN_WALL]->reflectanceFactor = 0.1f;
 
-	materials[(int)Tri::RED_WALL]->emissionColor = { 0.1f, 0.1f, 0.1f };
+	materials[(int)Tri::RED_WALL]->emissionColor = { 0.0f, 0.0f, 0.0f };
 	materials[(int)Tri::RED_WALL]->reflectanceColor = { 1.0f, 0.0f, 0.0f };
 	materials[(int)Tri::RED_WALL]->emissionFactor = 0.0f;
-	materials[(int)Tri::RED_WALL]->reflectanceFactor = 1.0f;
+	materials[(int)Tri::RED_WALL]->reflectanceFactor = 0.1f;
 
 	// create a patch for each triangle
 	for (auto tri : _triangles)
@@ -200,5 +196,47 @@ PatchCollectionPtr Scene::createPatches() const
 		patches->addPatch(patch);
 	}
 
+	// split patches and merge all duplicate vertices
+	patches = splitAndMerge(patches, patchSize);
 	return patches;
+}
+
+PatchCollectionPtr Scene::splitAndMerge(const PatchCollectionPtr& patches, float patchSize) const
+{
+	std::queue<PatchPtr> queue;
+	PatchCollectionPtr splitPatches = std::make_shared<PatchCollection>();
+
+	for (auto patch : patches->patches())
+	{
+		if (patch->size() <= patchSize)
+		{
+			splitPatches->mergePatch(patch);
+		}
+		else
+		{
+			queue.push(patch);
+		}
+	}
+
+	// split patches so long as the patches remain too large
+	while (!queue.empty())
+	{
+		PatchPtr patch = queue.front();
+		queue.pop();
+
+		PatchCollectionPtr subdividedPatch = patch->split();
+		for (auto split : subdividedPatch->patches())
+		{
+			if (split->size() <= patchSize)
+			{
+				splitPatches->mergePatch(split);
+			}
+			else
+			{
+				queue.push(split);
+			}
+		}
+	}
+
+	return splitPatches;
 }

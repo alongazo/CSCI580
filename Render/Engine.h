@@ -29,7 +29,7 @@ public:
 
 	// MEMBER FUNCTIONS
 	void setScene(const ScenePtr& scene);
-	void calculateIllumination(int iterations, int raysPerPatch);
+	void calculateIllumination(int iterations, int raysPerPatch, float patchSize);
 	void renderScene(GzRender* renderer);
 	float averageFormFactorValue() const;
 	Vec3 averageColor() const;

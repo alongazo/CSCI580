@@ -20,10 +20,14 @@ public:
 
 	// MEMBER FUNCTIONS
 	int load(const std::string& filePath);
-	PatchCollectionPtr createPatches() const;
+	PatchCollectionPtr createPatches(float patchSize) const;
 	std::vector<Tri> getTriangleList() { return _triangles; };
 
 private:
+	// HELPER FUNCTIONS
+	PatchCollectionPtr splitAndMerge(const PatchCollectionPtr& patches, 
+		float patchSize) const;
+
 	// MEMBERS
 	std::vector<Tri> _triangles;
 };

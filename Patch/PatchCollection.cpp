@@ -79,6 +79,51 @@ void PatchCollection::addPatches(const PatchCollectionPtr& patches)
 	}
 }
 
+void PatchCollection::mergePatch(const PatchPtr& patch)
+{
+	// stop if it already contains the patch that's going to be merged
+	auto res = _patches.find(patch->id());
+	if (res != _patches.end())
+	{
+		return;
+	}
+
+	// create convenience variables
+	std::vector<VertPtr> patchVertices = patch->vertices();
+	VertPtr v0 = patchVertices[0];
+	VertPtr v1 = patchVertices[1];
+	VertPtr v2 = patchVertices[2];
+	PatchPtr patchToInsert = patch;
+
+	// merge vertices if they already exist
+	for (auto vert : vertices())
+	{
+		if (vert->position == v0->position)
+		{
+			patchToInsert = std::make_shared<Patch>(vert, v1, v2, patch->material());
+			v0 = vert;
+		}
+		else if (vert->position == v1->position)
+		{
+			patchToInsert = std::make_shared<Patch>(v0, vert, v2, patch->material());
+			v1 = vert;
+		}
+		else if (vert->position == v2->position)
+		{
+			patchToInsert = std::make_shared<Patch>(v0, v1, vert, patch->material());
+			v2 = vert;
+		}
+	}
+
+	// add new patch
+	_patches.emplace(patchToInsert->id(), patchToInsert);
+	for (auto vert : patchToInsert->vertices())
+	{
+		addVertex(vert);
+		addAdjacentPatchToVertex(vert, patchToInsert);
+	}
+}
+
 // HELPER FUNCTIONS
 void PatchCollection::addVertex(const VertPtr& vertex)
 {

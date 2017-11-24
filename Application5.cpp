@@ -38,7 +38,6 @@ extern int GzFreeTexture();
 extern FormFactorCalculator g_instance;
 
 void shade(GzCoord norm, GzCoord color);
-static 	std::vector<Tri> triangleList;
 static Shooting::EmissionQueue emissionList;
 
 // RADIOSITY
@@ -97,8 +96,8 @@ int Application5::Initialize()
 	/*
 	* initialize the display and the renderer
 	*/
-	m_nWidth = 1024;		// frame buffer and display width
-	m_nHeight = 1024;    // frame buffer and display height
+	m_nWidth = 512;		// frame buffer and display width
+	m_nHeight = 512;    // frame buffer and display height
 
 	m_pRender = new GzRender(m_nWidth, m_nHeight);
 	m_pRender->GzDefault();
@@ -190,13 +189,7 @@ int Application5::Initialize()
 	// prepare engine
 	engine = std::make_shared<Engine>();
 	engine->setScene(scene);
-	engine->calculateIllumination(1, 200);
-	float average = engine->averageFormFactorValue();
-	Vec3 color = engine->averageColor();
-	for (Tri t : scene->getTriangleList())
-	{
-		triangleList.push_back(t);
-	}
+	engine->calculateIllumination(1, 100, 0.5f);
 
 	return GZ_SUCCESS;
 }
@@ -272,65 +265,9 @@ int Application5::Render()
 			}
 		}
 
+		// render the scene
+		engine->renderScene(m_pRender);
 
-		// render each triangle
-		for (Tri t : triangleList)
-		{
-			vertexList[0][0] = t.v0->position[0];
-			vertexList[0][1] = t.v0->position[1];
-			vertexList[0][2] = t.v0->position[2];
-
-			vertexList[1][0] = t.v1->position[0];
-			vertexList[1][1] = t.v1->position[1];
-			vertexList[1][2] = t.v1->position[2];
-
-			vertexList[2][0] = t.v2->position[0];
-			vertexList[2][1] = t.v2->position[1];
-			vertexList[2][2] = t.v2->position[2];
-
-			uvList[0][0] = 0;// t.A.u;
-			uvList[0][1] = 0;// t.A.v;
-
-			uvList[1][0] = 0;// t.B.u;
-			uvList[1][1] = 0;// t.B.v;
-
-			uvList[2][0] = 0;// t.C.u;
-			uvList[2][1] = 0;// t.C.v;
-
-			normalList[0][0] = t.v0->normal[0];
-			normalList[0][1] = t.v0->normal[1];
-			normalList[0][2] = t.v0->normal[2];
-
-			normalList[1][0] = t.v1->normal[0];
-			normalList[1][1] = t.v1->normal[1];
-			normalList[1][2] = t.v1->normal[2];
-
-			normalList[2][0] = t.v2->normal[0];
-			normalList[2][1] = t.v2->normal[1];
-			normalList[2][2] = t.v2->normal[2];
-
-			clamp(t.v0->color,0,1);
-			clamp(t.v1->color, 0, 1);
-			clamp(t.v2->color, 0, 1);
-			colorList[0][0] = t.v0->color[0];
-			colorList[0][1] = t.v0->color[1];
-			colorList[0][2] = t.v0->color[2];
-
-			colorList[1][0] = t.v1->color[0];
-			colorList[1][1] = t.v1->color[1];
-			colorList[1][2] = t.v1->color[2];
-
-			colorList[2][0] = t.v2->color[0];
-			colorList[2][1] = t.v2->color[1];
-			colorList[2][2] = t.v2->color[2];
-
-			
-			valueListTriangle[0] = (GzPointer)vertexList;
-			valueListTriangle[1] = (GzPointer)normalList;
-			valueListTriangle[2] = (GzPointer)uvList;
-			valueListTriangle[3] = (GzPointer)colorList;
-			m_pRender->GzPutTriangle(4, nameListTriangle, valueListTriangle);
-		}
 		// copy weighted colors to tmp AA buffer
 		for (int i = 0; i < m_nWidth; ++i)
 		{
