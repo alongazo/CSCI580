@@ -81,7 +81,7 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 		// determine coordinates in hemicube space
 		float x = initialX + (i / res) * pixelSize;
 		float y = initialY + (i % res) * pixelSize;
-		projectForPixel(patch, Vec3(x, y, initialZ), _zAxis, i);
+		projectForPixel(patch, Vec3(x, y, initialZ), i);
 	}
 
 	// perform for left and right side
@@ -93,8 +93,8 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 		// determine coordinates in hemicube space
 		float y = initialY + (i / res) * pixelSize;
 		float z = initialZ + (i % res) * pixelSize;
-		projectForPixel(patch, Vec3(-initialX, y, z), -_xAxis, res2 + i);
-		projectForPixel(patch, Vec3(initialX, y, z), _xAxis, 2 * res2 + i);
+		projectForPixel(patch, Vec3(-initialX, y, z), res2 + i);
+		projectForPixel(patch, Vec3(initialX, y, z), 2 * res2 + i);
 	}
 
 	// perform for back and front side
@@ -105,8 +105,8 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	{
 		float x = initialX + (i / res) * pixelSize;
 		float z = initialZ + (i % res) * pixelSize;
-		projectForPixel(patch, Vec3(x, -initialY, z), -_yAxis, 3 * res2 + i);
-		projectForPixel(patch, Vec3(x, initialY, z), _yAxis, 4 * res2 + i);
+		projectForPixel(patch, Vec3(x, -initialY, z), 3 * res2 + i);
+		projectForPixel(patch, Vec3(x, initialY, z), 4 * res2 + i);
 	}
 }
 
@@ -144,7 +144,7 @@ Hemicube2::FormFactorList Hemicube2::computeformFactors() const
 
 // HELPER FUNCTIONS
 void Hemicube2::projectForPixel(const std::shared_ptr<Patch>& patch,
-								Vec3 localPos, Vec3 dir, int index)
+								Vec3 localPos, int index)
 {
 	// store for convenience
 	Vec3 patchCenter = patch->center();
@@ -153,14 +153,15 @@ void Hemicube2::projectForPixel(const std::shared_ptr<Patch>& patch,
 	Vec3 pixelPos = _center + _xAxis * localPos.x + 
 							  _yAxis * localPos.y + 
 							  _zAxis * localPos.z;
+	Vec3 pixelDir = normalize(pixelPos - _center);
 
 	// determine distance^2 to object
 	float dist2 = length2(patchCenter - pixelPos);
 
 	// check if pixel can "see" patch and is closer than previously intersected patch
-	//Ray ray(pixelPos, dir);
-	//RayIntersection intersect = patch->intersectWithRay(ray);
-	if (//intersect.intersected &&
+	Ray ray(pixelPos, pixelDir);
+	RayIntersection intersect = patch->intersectWithRay(ray);
+	if (intersect.intersected &&
 		dist2 <= std::get<2>(_deltaFactors[index]))
 	{
 		// update pixel information

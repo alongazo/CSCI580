@@ -31,7 +31,7 @@ public:
 private:
 	// HELPER FUNCTIONS
 	void projectForPixel(const std::shared_ptr<Patch>& patch,
-						 Vec3 localPos, Vec3 dir, int index);
+						 Vec3 localPos, int index);
 
 	// MEMBERS
 	DeltaFactorList _deltaFactors;

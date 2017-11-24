@@ -42,7 +42,7 @@ void shade(GzCoord norm, GzCoord color);
 static Shooting::EmissionQueue emissionList;
 
 // RADIOSITY
-typedef Engine RadiosityEngine;
+typedef HemicubeEngine RadiosityEngine;
 typedef std::shared_ptr<RadiosityEngine> RadiosityEnginePtr;
 RadiosityEnginePtr engine;
 
@@ -192,7 +192,7 @@ int Application5::Initialize()
 	// prepare engine
 	engine = std::make_shared<RadiosityEngine>();
 	engine->setScene(scene);
-	engine->calculateIllumination(15, 500, 0.2f);
+	engine->calculateIllumination(15, 5, 1.f);
 
 	return GZ_SUCCESS;
 }
