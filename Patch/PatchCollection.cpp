@@ -38,6 +38,9 @@ std::vector<PatchPtr> PatchCollection::patchesAdjacentToVertex(const VertPtr& ve
 	std::vector<PatchPtr> patches;
 	for (auto patchId : pair->second)
 	{
+		PatchPtr patch = patchById(patchId);
+		assert(patchId == patch->id());
+		assert(patch->hasVert(vertex->id));
 		patches.push_back(patchById(patchId));
 	}
 
@@ -55,7 +58,7 @@ void PatchCollection::addPatch(const PatchPtr& patch)
 	}
 
 	// add patch then add vertices
-	_patches.emplace(patch->id(), patch);
+	_patches[patch->id()] = patch;
 	for (auto vertex : patch->vertices())
 	{
 		addVertex(vertex);
@@ -98,17 +101,17 @@ void PatchCollection::mergePatch(const PatchPtr& patch)
 	// merge vertices if they already exist
 	for (auto vert : vertices())
 	{
-		if (vert->position == v0->position)
+		if (vert->position == v0->position && vert->normal == v0->normal)
 		{
 			patchToInsert = std::make_shared<Patch>(vert, v1, v2, patch->material());
 			v0 = vert;
 		}
-		else if (vert->position == v1->position)
+		else if (vert->position == v1->position && vert->normal == v1->normal)
 		{
 			patchToInsert = std::make_shared<Patch>(v0, vert, v2, patch->material());
 			v1 = vert;
 		}
-		else if (vert->position == v2->position)
+		else if (vert->position == v2->position && vert->normal == v2->normal)
 		{
 			patchToInsert = std::make_shared<Patch>(v0, v1, vert, patch->material());
 			v2 = vert;
@@ -116,7 +119,7 @@ void PatchCollection::mergePatch(const PatchPtr& patch)
 	}
 
 	// add new patch
-	_patches.emplace(patchToInsert->id(), patchToInsert);
+	_patches[patchToInsert->id()] = patchToInsert;
 	for (auto vert : patchToInsert->vertices())
 	{
 		addVertex(vert);
@@ -131,7 +134,7 @@ void PatchCollection::addVertex(const VertPtr& vertex)
 	auto intern = _vertices.find(vertex->id);
 	if (intern == _vertices.end())
 	{
-		_vertices.emplace(vertex->id, vertex);
+		_vertices[vertex->id] = vertex;
 	}
 }
 
@@ -142,9 +145,9 @@ void PatchCollection::addAdjacentPatchToVertex(const VertPtr& vertex,
 	auto internV = _adjacentPatchIds.find(vertex->id);
 	if (internV == _adjacentPatchIds.end())
 	{
-		_adjacentPatchIds.emplace(vertex->id, std::vector<int>());
+		_adjacentPatchIds[vertex->id] = std::vector<int>();
 	}
 
 	// add to patch list
-	_adjacentPatchIds.at(vertex->id).push_back(patch->id());
+	_adjacentPatchIds[vertex->id].push_back(patch->id());
 }
