@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "Hemicube2.h"
 #include "Hemisphere.h"
 #include "Material.h"
 #include "../vec.h"
@@ -37,6 +38,7 @@ public:
 	std::vector<VertPtr> vertices() const;
 
 	Hemisphere hemisphere() const;
+	Hemicube2 hemicube(int resolution) const;
 	Vec3 randomPoint() const;
 
 	Vec3 emissionEnergy() const;

@@ -17,6 +17,11 @@ int Scene::load(const std::string& filePath)
 		return GZ_FAILURE;
 	}
 
+	// store name as cleansed file path
+	_name = filePath;
+	std::replace(_name.begin(), _name.end(), '/', '_');
+	std::replace(_name.begin(), _name.end(), '\\', '_');
+
 	// prepare buffers and read file
 	std::map<int, VertPtr> vertices;
 	std::vector<Vec3> positions;

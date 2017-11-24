@@ -114,6 +114,12 @@
     <ClCompile Include="Math\RayTracer.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Patch\Hemicube2.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="Render\HemicubeEngine.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CS580HW.rc">
@@ -219,6 +225,12 @@
     </ClInclude>
     <ClInclude Include="Math\RayTracer.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Patch\Hemicube2.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="Render\HemicubeEngine.h">
+      <Filter>Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

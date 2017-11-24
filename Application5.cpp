@@ -14,6 +14,7 @@
 #include "rend.h"
 #include "Patch/PatchCollection.h"
 #include "Render/Engine.h"
+#include "Render/HemicubeEngine.h"
 #include "Render/Scene.h"
 #include "Shooting.h"
 #include "Triangle.h"
@@ -27,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
-#define INFILE  "radiosityTestScene2.obj"
+#define INFILE  "TestSceneJon.obj"
 #define OUTFILE "output.ppm"
 #define FORMFILE "formFactors.txt"
 #define MAX_VERTICES 10000
@@ -41,7 +42,9 @@ void shade(GzCoord norm, GzCoord color);
 static Shooting::EmissionQueue emissionList;
 
 // RADIOSITY
-EnginePtr engine;
+typedef Engine RadiosityEngine;
+typedef std::shared_ptr<RadiosityEngine> RadiosityEnginePtr;
+RadiosityEnginePtr engine;
 
 //////////////////////////////////////////////////////////////////////
 // Constants
@@ -187,9 +190,13 @@ int Application5::Initialize()
 	scene->load(INFILE);
 
 	// prepare engine
-	engine = std::make_shared<Engine>();
+	engine = std::make_shared<RadiosityEngine>();
 	engine->setScene(scene);
-	engine->calculateIllumination(1, 100, 0.5f);
+	engine->calculateIllumination(15, 500, 0.2f);
+
+	//engine = std::make_shared<Engine>();
+	//engine->setScene(scene);
+	//engine->calculateIllumination(15, 500, 0.2f);
 
 	return GZ_SUCCESS;
 }

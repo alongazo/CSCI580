@@ -47,6 +47,13 @@ Hemisphere Patch::hemisphere() const
 	return Hemisphere(_center, radius, _normal, xAxis);
 }
 
+Hemicube2 Patch::hemicube(int resolution) const
+{
+	float sideLength = size();
+	Vec3 xAxis = _v0->position - _center;
+	return Hemicube2(_center, _normal, xAxis, sideLength, resolution);
+}
+
 Vec3 Patch::randomPoint() const
 {
 	float r1 = RNG::randContinuous();
