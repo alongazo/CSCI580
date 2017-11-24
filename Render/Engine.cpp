@@ -1,6 +1,9 @@
 #include "Engine.h"
 
 #include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "../Math/Ray.h"
 #include "../Math/RayIntersection.h"
@@ -11,6 +14,7 @@ void Engine::calculateIllumination(int iterations, int raysPerPatch, float patch
 	// create patches from scene
 	_patches = _scene->createPatches(patchSize);
 	_raysPerPatch = raysPerPatch;
+	_patchSize = patchSize;
 
 	initialize();
 
@@ -21,6 +25,12 @@ void Engine::calculateIllumination(int iterations, int raysPerPatch, float patch
 
 	estimateAmbientIllumination();
 	postProcess();
+
+	// back up form factors for later
+	if (!hasSavedFormFactors())
+	{
+		saveFormFactors();
+	}
 }
 
 void Engine::renderScene(GzRender* renderer)
@@ -145,6 +155,84 @@ void Engine::initialize()
 	_totalReflectance = Vec3(1.f / (1.f - avgReflectance.r),
 							 1.f / (1.f - avgReflectance.g),
 							 1.f / (1.f - avgReflectance.b));
+
+	// load form factors if they exist
+	if (hasSavedFormFactors())
+	{
+		loadSavedFormFactors();
+	}
+}
+
+bool Engine::hasSavedFormFactors() const
+{
+	std::ifstream f(formFactorFileName());
+	return f.good();
+}
+
+void Engine::loadSavedFormFactors()
+{
+	std::ifstream file(formFactorFileName());
+	if (!file.good())
+	{
+		assert(!"File could not be opened!");
+		return;
+	}
+
+	// clear form factors
+	_patchToVisiblePatchFormFactors.clear();
+
+	// read file
+	std::string line;
+	while (std::getline(file, line))
+	{
+		std::istringstream iss(line);
+		int srcId;
+
+		// skip line if it doesn't start with an id
+		if (!(iss >> srcId))
+		{
+			continue;
+		}
+
+		// create list for the patch and store in map
+		PatchFactorCollectionPtr formFactors = std::make_shared<PatchFactorCollection>();
+		_patchToVisiblePatchFormFactors[srcId] = formFactors;
+
+		// populate form factor list
+		int dstId;
+		float formFactor;
+		while (iss >> dstId >> formFactor)
+		{
+			PatchPtr patch = _patches->patchById(dstId);
+			formFactors->push_back(std::make_pair(patch, formFactor));
+		}
+	}
+}
+
+void Engine::saveFormFactors() const
+{
+	std::ofstream file(formFactorFileName());
+	if (!file.good())
+	{
+		assert(!"File could not be opened!");
+		return;
+	}
+
+	file << "Radiosity Form Factors v1.0.0" << std::endl;
+	for (auto factorList : _patchToVisiblePatchFormFactors)
+	{
+		// output source patch id
+		file << factorList.first << " ";
+
+		// output each form factor pair in list
+		for (auto pair : *factorList.second)
+		{
+			file << pair.first->id() << " " << pair.second << " ";
+		}
+
+		// prepare for next line
+		file << std::endl;
+	}
 }
 
 void Engine::doIterate()
@@ -300,4 +388,11 @@ PatchFactorCollectionPtr Engine::visiblePatches(const PatchPtr& src)
 	PatchFactorCollectionPtr patchFactors = calculateVisiblePatches(src);
 	_patchToVisiblePatchFormFactors[src->id()] = patchFactors;
 	return patchFactors;
+}
+
+std::string Engine::formFactorFileName() const
+{
+	std::stringstream ss;
+	ss << "FormFactors_" << _scene->name() << "_" << _patchSize << "_" << _raysPerPatch << ".hsff";
+	return ss.str();
 }

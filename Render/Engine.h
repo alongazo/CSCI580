@@ -37,6 +37,9 @@ public:
 private:
 	// HELPER FUNCTIONS
 	void initialize();
+	bool hasSavedFormFactors() const;
+	void loadSavedFormFactors();
+	void saveFormFactors() const;
 	void doIterate();
 	void shootRadiosity(const PatchPtr& src);
 	void estimateAmbientIllumination();
@@ -46,6 +49,7 @@ private:
 	// HELPER ACCESSORS
 	std::vector<PatchPtr> emittingPatches() const;
 	PatchFactorCollectionPtr visiblePatches(const PatchPtr& src);
+	std::string formFactorFileName() const;
 
 	// MEMBERS
 	std::map<int, PatchFactorCollectionPtr> _patchToVisiblePatchFormFactors;
@@ -53,6 +57,7 @@ private:
 	PatchCollectionPtr _patches;
 	Vec3 _totalReflectance;
 	float _totalPatchArea;
+	float _patchSize;
 	int _raysPerPatch;
 
 };
