@@ -10,7 +10,7 @@
 GzRender::GzRender(int xRes, int yRes)
 	: matlevel(-1), numlights(0), spec(DEFAULT_SPEC), interp_mode(GZ_FLAT),
 	  tex_fun(nullptr), hasPosition(false), hasNormal(false), hasUV(false),
-	  xOffset(0.f), yOffset(0.f), weight(1.f)
+	  hasColor(false), xOffset(0.f), yOffset(0.f), weight(1.f)
 {
 	// set resolution
 	xres = static_cast<unsigned short>(clamp(xRes, 0, MAXXRES));
@@ -453,9 +453,9 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 			memcpy(vPositions, static_cast<Vec3*>(valueList[i]), sizeof(Vec3) * 3);
 			hasPosition = true;
 
-			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
+			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV) && hasColor)
 			{
-				lee(vPositions, vNormals, vUVs,vColors);
+				lee(vPositions, vNormals, vUVs, vColors);
 			}
 			break;
 
@@ -463,9 +463,9 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 			memcpy(vNormals, static_cast<Vec3*>(valueList[i]), sizeof(Vec3) * 3);
 			hasNormal = true;
 
-			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
+			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV) && hasColor)
 			{
-				lee(vPositions, vNormals, vUVs,vColors);
+				lee(vPositions, vNormals, vUVs, vColors);
 			}
 			break;
 
@@ -473,9 +473,9 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 			memcpy(vUVs, static_cast<Vec2*>(valueList[i]), sizeof(Vec2) * 3);
 			hasUV = true;
 
-			if (hasPosition && hasNormal && hasUV)
+			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV) && hasColor)
 			{
-				lee(vPositions, vNormals, vUVs,vColors);
+				lee(vPositions, vNormals, vUVs, vColors);
 			}
 			break;
 		case GZ_COLORS:
@@ -483,7 +483,7 @@ int GzRender::GzPutTriangle(int numParts, GzToken *nameList, GzPointer *valueLis
 			memcpy(vColors, static_cast<Vec3*>(valueList[i]), sizeof(Vec3) * 3);
 			hasColor = true;
 
-			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV))
+			if (hasPosition && hasNormal && (tex_fun == nullptr || hasUV) && hasColor)
 			{
 				lee(vPositions, vNormals, vUVs, vColors);
 			}
@@ -599,6 +599,9 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3* colors)
 	Vec4 planeParamC = interpPlane(Vec3(a.x, a.y, ap.z), Vec3(b.x, b.y, bp.z), Vec3(c.x, c.y, cp.z));
 	Vec4 planeParamU = interpPlane(Vec3(a.x, a.y, aUV.x), Vec3(b.x, b.y, bUV.x), Vec3(c.x, c.y, cUV.x));
 	Vec4 planeParamV = interpPlane(Vec3(a.x, a.y, aUV.y), Vec3(b.x, b.y, bUV.y), Vec3(c.x, c.y, cUV.y));
+	Vec4 red = interpPlane(Vec3(a.x, a.y, ac.r), Vec3(b.x, b.y, bc.r), Vec3(c.x, c.y, cc.r));
+	Vec4 green = interpPlane(Vec3(a.x, a.y, ac.g), Vec3(b.x, b.y, bc.g), Vec3(c.x, c.y, cc.g));
+	Vec4 blue = interpPlane(Vec3(a.x, a.y, ac.b), Vec3(b.x, b.y, bc.b), Vec3(c.x, c.y, cc.b));
 	
 	// compute triangle bounding box
 	int minX = (int)max(floormin3(a.x, b.x, c.x), 0);
@@ -636,9 +639,6 @@ int GzRender::lee(Vec3* positions, Vec3* normals, Vec2* uvs, Vec3* colors)
 				{
 					Vec3 color;
 					Vec3 pos(x, y, z);
-					Vec4 red = interpPlane(Vec3(a.x, a.y, ac.r), Vec3(b.x, b.y, bc.r), Vec3(c.x, c.y, cc.r));
-					Vec4 green = interpPlane(Vec3(a.x, a.y, ac.g), Vec3(b.x, b.y, bc.g), Vec3(c.x, c.y, cc.g));
-					Vec4 blue = interpPlane(Vec3(a.x, a.y, ac.b), Vec3(b.x, b.y, bc.b), Vec3(c.x, c.y, cc.b));
 
 					float rf = -(red.x * pos.x + red.y * pos.y + red.w) / red.z;
 					float gf = -(green.x * pos.x + green.y * pos.y + green.w) / green.z;
