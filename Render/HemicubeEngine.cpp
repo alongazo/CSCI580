@@ -177,9 +177,9 @@ void HemicubeEngine::computeFormFactors()
 	{
 		// get hemicube and project all other patches onto cube
 		Hemicube2 hemicube = patch->hemicube(_hemicubeRes);
-		for (auto src : _patches->patches())
+		for (auto target : _patches->patches())
 		{
-			hemicube.projectPatch(src);
+			hemicube.projectPatch(target);
 		}
 		
 		// copy factors to internal representation
@@ -188,8 +188,8 @@ void HemicubeEngine::computeFormFactors()
 		{
 			// map such that each patch has a list of form factors for patches that it projects to
 			// in other words invert the mapping
-			_patchToPatchFormFactors[pair.first->id()]->
-				push_back(std::make_pair(patch, pair.second));
+			_patchToPatchFormFactors[patch->id()]->
+				push_back(std::make_pair(pair.first, pair.second));
 		}
 	}
 
