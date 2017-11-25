@@ -39,9 +39,13 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		float y = initialY + (i % res) * pixelSize;
 
 		Vec3 vec(x, y, initialZ);
-		float len2 = length(vec-_center);
+		vec = _center + _xAxis * vec.x +
+			_yAxis * vec.y +
+			_zAxis * vec.z;
+		vec = vec - _center;
+		float len2 = length(vec);
 		float len4 = len2 * len2;
-		float costhetaPatch = dot(_normal, vec) / (length(_normal)*length(vec));
+		float costhetaPatch = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixel = dot(-_zAxis, vec) / (length(-_zAxis)*length(vec));
 		std::get<1>(_deltaFactors[i]) =fabsf(pixelArea*costhetaPatch*costhetaPixel) / (PI * len4);
 	}
@@ -93,15 +97,19 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		float y = initialY + (i / res) * pixelSize;
 		float z = initialZ + (i % res) * (pixelSize);
 		Vec3 vec(initialX, y, z);
-		float len2 = length(vec - _center);
+		vec = _center + _xAxis * vec.x +
+			_yAxis * vec.y +
+			_zAxis * vec.z;
+		vec = vec - _center;
+		float len2 = length(vec);
 		float len4 = len2 * len2;
 		float delta = (pixelArea) / (PI * len4);
 		//Left
-		float costhetaPatchL = dot(_normal, vec) / (length(_normal)*length(vec));
+		float costhetaPatchL = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixelL = dot(_xAxis, vec) / (length(_xAxis)*length(vec));
 
 		//Right
-		float costhetaPatchR = dot(_normal, vec) / (length(_normal)*length(vec));
+		float costhetaPatchR = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixelR = dot(-_xAxis, vec) / (length(-_xAxis)*length(vec));
 
 		std::get<1>(_deltaFactors[i + res2]) = fabsf(delta*costhetaPatchL*costhetaPixelL);
@@ -119,16 +127,20 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		float z = initialZ + (i % res) * (pixelSize);
 
 		Vec3 vec(x, initialY, z);
-		float len2 = length(vec - _center);
+		vec = _center + _xAxis * vec.x +
+			_yAxis * vec.y +
+			_zAxis * vec.z;
+		vec = vec - _center;
+		float len2 = length(vec);
 		float len4 = len2 * len2;
 		float delta = (pixelArea) / (PI * len4);
 
 		//Back
-		float costhetaPatchB = dot(_normal, vec) / (length(_normal)*length(vec));
+		float costhetaPatchB = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixelB = dot(-_yAxis, vec) / (length(-_yAxis)*length(vec));
 
 		//Front
-		float costhetaPatchF = dot(_normal, vec) / (length(_normal)*length(vec));
+		float costhetaPatchF = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixelF = dot(_yAxis, vec) / (length(_yAxis)*length(vec));
 
 		std::get<1>(_deltaFactors[i + res2 * 3]) = fabsf(delta*costhetaPatchB*costhetaPixelB);
