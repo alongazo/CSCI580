@@ -192,7 +192,7 @@ int Application5::Initialize()
 	// prepare engine
 	engine = std::make_shared<RadiosityEngine>();
 	engine->setScene(scene);
-	engine->calculateIllumination(15, 5, 1.f);
+	engine->calculateIllumination(15, 5, .5f);
 
 	return GZ_SUCCESS;
 }

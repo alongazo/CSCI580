@@ -50,7 +50,7 @@ Hemisphere Patch::hemisphere() const
 Hemicube2 Patch::hemicube(int resolution) const
 {
 	float radius = sqrt(_area / PI);
-	float sideLength = (2 * radius) / sqrtf(2.f);
+	float sideLength = (2 * radius);
 	Vec3 xAxis = _v0->position - _center;
 	return Hemicube2(_center, _normal, xAxis, sideLength, resolution);
 }
