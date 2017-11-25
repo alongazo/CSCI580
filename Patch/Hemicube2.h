@@ -39,7 +39,6 @@ private:
 	Vec3 _yAxis;
 	Vec3 _zAxis;
 	Vec3 _center;
-	Vec3 _normal;
 	float _sideLength;
 	float _baseArea;
 	int _resolution;

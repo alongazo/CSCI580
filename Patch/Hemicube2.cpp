@@ -11,8 +11,7 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 	float sideLength, int res)
 	: _deltaFactors(res * res * 5, std::make_tuple(nullptr, 0.f, FLT_MAX)),
 	  _xAxis(xAxisDir), _yAxis(), _zAxis(viewDir), _sideLength(sideLength),
-	  _baseArea(sideLength * sideLength), _resolution(res), _normal(viewDir),
-	  _center(center)
+	  _baseArea(sideLength * sideLength), _resolution(res), _center(center)
 {
 	// normalize axes, compute y-axis
 	_xAxis = normalize(_xAxis);
@@ -46,43 +45,6 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		std::get<1>(_deltaFactors[i]) =fabsf(topPixelArea*costhetaPatch*costhetaPixel) / (PI * len4);
 	}
 
-	//// compute delta form factors for sides (same for all sides)
-	/*initialX = _sideLength / 2.f;
-	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	initialZ = pixelSize / 2.f;
-	for (int i = 0; i < res2; ++i)
-	{
-		// determine coordinates in hemicube space
-		float y = initialY + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * pixelSize;
-
-		Vec3 vec(initialX, y, z);
-		float len2 = length(vec-_center);
-		float len4 = len2 * len2;
-		float delta = (pixelArea) / (PI * len4);
-
-		//Left
-		float costhetaPatchL = dot(_normal, vec) / (length(_normal)*length(vec));
-		float costhetaPixelL = dot(_xAxis, vec) / (length(_xAxis)*length(vec));
-
-		//Right
-		float costhetaPatchR = dot(_normal, vec) / (length(_normal)*length(vec));
-		float costhetaPixelR = dot(-_xAxis, vec) / (length(-_xAxis)*length(vec));
-
-		//Back
-		float costhetaPatchB = dot(_normal, vec) / (length(_normal)*length(vec));
-		float costhetaPixelB = dot(-_yAxis, vec) / (length(-_yAxis)*length(vec));
-
-		//Front
-		float costhetaPatchF = dot(_normal, vec) / (length(_normal)*length(vec));
-		float costhetaPixelF = dot(_yAxis, vec) / (length(_yAxis)*length(vec));
-
-		std::get<1>(_deltaFactors[i + res2]) = fabsf(delta*costhetaPatchL*costhetaPixelL);
-		std::get<1>(_deltaFactors[i + res2 * 2]) = fabsf(delta*costhetaPatchR*costhetaPixelR);
-		std::get<1>(_deltaFactors[i + res2 * 3]) = fabsf(delta*costhetaPatchB*costhetaPixelB);
-		std::get<1>(_deltaFactors[i + res2 * 4]) = fabsf(delta*costhetaPatchF*costhetaPixelF);
-
-	}*/
 	//Left and Right
 	initialX = _sideLength / 2.f;
 	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
