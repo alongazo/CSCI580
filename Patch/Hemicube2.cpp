@@ -42,7 +42,7 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		float len2 = length(vec-_center);
 		float len4 = len2 * len2;
 		float costhetaPatch = dot(_normal, vec) / (length(_normal)*length(vec));
-		float costhetaPixel = dot(-_zAxis, vec) / (length(-_yAxis)*length(vec));
+		float costhetaPixel = dot(-_zAxis, vec) / (length(-_zAxis)*length(vec));
 		std::get<1>(_deltaFactors[i]) =fabsf(pixelArea*costhetaPatch*costhetaPixel) / (PI * len4);
 	}
 
