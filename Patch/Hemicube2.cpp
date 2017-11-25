@@ -11,25 +11,21 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 	float sideLength, int res)
 	: _deltaFactors(res * res * 5, std::make_tuple(nullptr, 0.f, FLT_MAX)),
 	  _xAxis(xAxisDir), _yAxis(), _zAxis(viewDir), _sideLength(sideLength),
-	  _baseArea(sideLength * sideLength), _resolution(res), _normal(viewDir)
+	  _baseArea(sideLength * sideLength), _resolution(res), _normal(viewDir),
+	  _center(center)
 {
 	// normalize axes, compute y-axis
 	_xAxis = normalize(_xAxis);
 	_zAxis = normalize(_zAxis);
 	_yAxis = normalize(cross(_zAxis, _xAxis));
 
-	/*int res2 = res * res;
-	for (int i = 0; i < 5 * res2; ++i)
-	{
-		std::get<1>(_deltaFactors[i]) = 1.f / (5.f * res * res);
-	}*/
-
 	//// prepare to compute delta form factors
 	float pixelSize = _sideLength / res;
-	float pixelArea = pixelSize * pixelSize;
+	float topPixelArea = pixelSize * pixelSize;
+	float sidePixelArea = topPixelArea / 2.f;
 	float initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	float initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	float initialZ = _sideLength;
+	float initialZ = _sideLength / 2.f;
 
 	//// compute delta form factors for top
 	int res2 = res * res;
@@ -47,7 +43,7 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		float len4 = len2 * len2;
 		float costhetaPatch = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixel = dot(-_zAxis, vec) / (length(-_zAxis)*length(vec));
-		std::get<1>(_deltaFactors[i]) =fabsf(pixelArea*costhetaPatch*costhetaPixel) / (PI * len4);
+		std::get<1>(_deltaFactors[i]) =fabsf(topPixelArea*costhetaPatch*costhetaPixel) / (PI * len4);
 	}
 
 	//// compute delta form factors for sides (same for all sides)
@@ -90,12 +86,12 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 	//Left and Right
 	initialX = _sideLength / 2.f;
 	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		// determine coordinates in hemicube space
 		float y = initialY + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * (pixelSize);
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 		Vec3 vec(initialX, y, z);
 		vec = _center + _xAxis * vec.x +
 			_yAxis * vec.y +
@@ -103,7 +99,7 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		vec = vec - _center;
 		float len2 = length(vec);
 		float len4 = len2 * len2;
-		float delta = (pixelArea) / (PI * len4);
+		float delta = (sidePixelArea) / (PI * len4);
 		//Left
 		float costhetaPatchL = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
 		float costhetaPixelL = dot(_xAxis, vec) / (length(_xAxis)*length(vec));
@@ -114,17 +110,16 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 
 		std::get<1>(_deltaFactors[i + res2]) = fabsf(delta*costhetaPatchL*costhetaPixelL);
 		std::get<1>(_deltaFactors[i + res2 * 2]) = fabsf(delta*costhetaPatchR*costhetaPixelR);
-
 	}
 
 	// perform for back and front side
 	initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	initialY = _sideLength / 2.f;
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		float x = initialX + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * (pixelSize);
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 
 		Vec3 vec(x, initialY, z);
 		vec = _center + _xAxis * vec.x +
@@ -133,7 +128,7 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 		vec = vec - _center;
 		float len2 = length(vec);
 		float len4 = len2 * len2;
-		float delta = (pixelArea) / (PI * len4);
+		float delta = (sidePixelArea) / (PI * len4);
 
 		//Back
 		float costhetaPatchB = dot(_zAxis, vec) / (length(_zAxis)*length(vec));
@@ -145,7 +140,6 @@ Hemicube2::Hemicube2(const Vec3& center, const Vec3& viewDir, const Vec3& xAxisD
 
 		std::get<1>(_deltaFactors[i + res2 * 3]) = fabsf(delta*costhetaPatchB*costhetaPixelB);
 		std::get<1>(_deltaFactors[i + res2 * 4]) = fabsf(delta*costhetaPatchF*costhetaPixelF);
-
 	}
 }
 
@@ -161,7 +155,7 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform top plane projection
 	float initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	float initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	float initialZ = _sideLength;
+	float initialZ = _sideLength / 2.f;
 
 	// perform for top
 	for (int i = 0; i < res2; ++i)
@@ -175,12 +169,12 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform for left and right side
 	initialX = _sideLength / 2.f;
 	initialY = (-_sideLength / 2.f) + (pixelSize / 2.f);
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		// determine coordinates in hemicube space
 		float y = initialY + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * (pixelSize);
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 		projectForPixel(patch, Vec3(-initialX, y, z), res2 + i);
 		projectForPixel(patch, Vec3(initialX, y, z), 2 * res2 + i);
 	}
@@ -188,11 +182,11 @@ void Hemicube2::projectPatch(const PatchPtr& patch)
 	// perform for back and front side
 	initialX = (-_sideLength / 2.f) + (pixelSize / 2.f);
 	initialY = _sideLength / 2.f;
-	initialZ = pixelSize / 2.f;
+	initialZ = pixelSize / 4.f;
 	for (int i = 0; i < res2; ++i)
 	{
 		float x = initialX + (i / res) * pixelSize;
-		float z = initialZ + (i % res) * (pixelSize);
+		float z = initialZ + (i % res) * (pixelSize / 2.f);
 		projectForPixel(patch, Vec3(x, -initialY, z), 3 * res2 + i);
 		projectForPixel(patch, Vec3(x, initialY, z), 4 * res2 + i);
 	}
@@ -245,7 +239,7 @@ void Hemicube2::projectForPixel(const std::shared_ptr<Patch>& patch,
 	Vec3 pixelPos = _center + _xAxis * localPos.x + 
 							  _yAxis * localPos.y + 
 							  _zAxis * localPos.z;
-	Vec3 pixelDir = normalize(pixelPos-_center);
+	Vec3 pixelDir = normalize(pixelPos - _center);
 
 	// determine distance^2 to object
 	float dist2 = length2(patchCenter - pixelPos);
