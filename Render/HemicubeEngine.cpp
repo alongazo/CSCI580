@@ -157,11 +157,11 @@ void HemicubeEngine::initialize()
 void HemicubeEngine::computeFormFactors()
 {
 	// check for cached file
-	/*if (hasSavedFormFactors())
+	if (hasSavedFormFactors())
 	{
 		loadSavedFormFactors();
 		return;
-	}*/
+	}
 
 	// clear form factors
 	_patchToPatchFormFactors.clear();
